@@ -1,16 +1,17 @@
-# reference_library
+# Video Reference Library
 
-A new Flutter project.
+To help me find and watch videos on certain topics
 
-## Getting Started
+## Screenshots
 
-This project is a starting point for a Flutter application.
+View of the main library of videos
+![](screenshots/LibraryView.png)
 
-A few resources to get you started if this is your first Flutter project:
+View of the search interface to find videos or timestamps in videos based on tags or keywords
+![](screenshots/SearchView.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+View of the main playback interface
+![](screenshots/PlaybackView.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If a video was playing and the view changes it will keep playing on a mini player
+![](screenshots/LibraryView_MiniPlayer.png)
