@@ -64,8 +64,12 @@ class PlaybackScreen extends StatelessWidget {
                 children: [
                   ToggleSwitch(
                     content: const Text("Random Mode"),
-                    checked: false,
-                    onChanged: (bool value) {},
+                    checked: context.watch<PlaylistProvider>().randomMode,
+                    onChanged: (bool value) {
+                      context
+                          .read<PlaylistProvider>()
+                          .setRandomMode(value, context);
+                    },
                   ),
                   Expanded(
                       flex: 11,

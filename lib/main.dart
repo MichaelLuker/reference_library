@@ -108,13 +108,7 @@ class _AppState extends State<App> with WindowListener {
         else if (event.isKeyPressed(LogicalKeyboardKey.keyJ)) {
         }
         // Fast Forward 30 seconds
-        else if (event.isKeyPressed(LogicalKeyboardKey.keyL)) {
-        }
-        // Volume up
-        else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
-        }
-        // Volume Down
-        else if (event.isKeyPressed(LogicalKeyboardKey.arrowDown)) {}
+        else if (event.isKeyPressed(LogicalKeyboardKey.keyL)) {}
       },
       child: NavigationView(
           // Top bar with the app name and

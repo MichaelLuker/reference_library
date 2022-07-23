@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
@@ -13,6 +15,7 @@ class PlaylistProvider with ChangeNotifier {
   bool _randomMode = false;
   late Player _player;
   bool _debounce = false;
+  BuildContext? _context;
 
   PlaylistProvider() {
     // _player.open(
@@ -98,6 +101,19 @@ class PlaylistProvider with ChangeNotifier {
   }
 
   void nextVideo({bool autoStart = true}) {
+    if (_randomMode) {
+      _currentVideo = _randomVideo();
+      if (!_playList.contains(_currentVideo)) {
+        _playList.add(_currentVideo!);
+        _playListIndex++;
+      } else {
+        _playListIndex = _playList.indexOf(_currentVideo!);
+      }
+
+      _loadVideo(autoStart: autoStart);
+      notifyListeners();
+      return;
+    }
     if (_playList.isEmpty) {
       return;
     }
@@ -116,9 +132,19 @@ class PlaylistProvider with ChangeNotifier {
     _player.seek(dur);
   }
 
-  void randomVideo() {}
+  void setRandomMode(bool b, BuildContext context) {
+    _context = context;
+    _randomMode = b;
+    notifyListeners();
+  }
+
+  VideoData _randomVideo() {
+    int r = math.Random().nextInt(_context!.read<DataProvider>().videos.length);
+    return _context!.read<DataProvider>().videos[r];
+  }
 
   Player get player => _player;
   VideoData? get currentVideo => _currentVideo;
   List<VideoData> get playList => _playList;
+  bool get randomMode => _randomMode;
 }
