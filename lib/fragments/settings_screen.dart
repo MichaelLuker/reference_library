@@ -1,6 +1,4 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 // All the different settings, series, tags, add new videos, edit data on existing ones?
 class SettingsScreen extends StatelessWidget {

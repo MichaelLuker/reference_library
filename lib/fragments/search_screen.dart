@@ -1,11 +1,7 @@
 import 'dart:developer' as dev;
 import 'dart:math';
-
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/fragments/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
@@ -20,16 +16,16 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   // Need a secondary scroll controller for the left pane tag view
-  ScrollController _tagScroller = ScrollController();
-  ScrollController _sc = ScrollController();
-  int _extraScrollSpeed = 50;
+  final ScrollController _tagScroller = ScrollController();
+  final ScrollController _sc = ScrollController();
+  final int _extraScrollSpeed = 50;
   // List of tags from the data provider
   late List<String> _tags;
   late List<VideoData> _videos;
   // Stores the state of if a tag is selected or not for visual updating
-  Map<String, bool> _chipSelect = {};
+  final Map<String, bool> _chipSelect = {};
   // List of the actually selected tags that will be used for filtering
-  List<String> _selectedTags = [];
+  final List<String> _selectedTags = [];
 
   // Builds the list of all tag chips
   List<Widget> buildChips(List<String> tags) {
@@ -114,7 +110,7 @@ class _SearchScreenState extends State<SearchScreen> {
               )),
           const Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
               child: AutoSuggestBox(
                 placeholder: "Keyword Search",
                 items: [],
@@ -158,11 +154,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
 // Custom chip to handle displaying a selected chip
 class CustomChip extends StatelessWidget {
-  CustomChip(this.text, this.selected, this.callback, {Key? key})
+  const CustomChip(this.text, this.selected, this.callback, {Key? key})
       : super(key: key);
-  String text;
-  bool selected;
-  Function callback;
+  final String text;
+  final bool selected;
+  final Function callback;
   @override
   Widget build(BuildContext context) {
     return selected

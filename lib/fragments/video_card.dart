@@ -1,22 +1,16 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
-import 'package:reference_library/fragments/play_screen.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
-import 'package:youtube/youtube_thumbnail.dart';
-
 import '../providers/data_provider.dart';
 
 // Widget to display a video thumbnail and title (library, playlist, search screens)
 class VideoCard extends StatefulWidget {
-  VideoCard(this.data, {Key? key}) : super(key: key);
-  VideoData data;
+  const VideoCard(this.data, {Key? key}) : super(key: key);
+  final VideoData data;
   @override
+  // ignore: no_logic_in_create_state
   State<VideoCard> createState() => _VideoCardState(data);
 }
 
@@ -35,6 +29,7 @@ class _VideoCardState extends State<VideoCard> {
         thumbnailExists = File(data.thumbnailPath).existsSync();
       });
     }
+    // Mouse region to detect if the cursor is entering or leaving the card to highlight it
     return MouseRegion(
         onEnter: (_) {
           setState(() {
@@ -46,6 +41,7 @@ class _VideoCardState extends State<VideoCard> {
             backgroundcolor = ThemeData.dark().cardColor;
           });
         },
+        // Tooltip to show full video titles, some are long and get cut off
         child: Tooltip(
           displayHorizontally: false,
           useMousePosition: false,
@@ -55,9 +51,13 @@ class _VideoCardState extends State<VideoCard> {
               showDuration: Duration(milliseconds: 500),
               waitDuration: Duration(milliseconds: 500)),
           message: data.title,
+          // GestureDetector to get left and right click events on the card itself
           child: GestureDetector(
+              onSecondaryTap: () {
+                // Right click to show video edit screen
+              },
               onTap: () {
-                log("Card press");
+                // Left click the card to play the video immediately
                 context.read<PlaylistProvider>().queueVideo(data);
                 context
                     .read<NavigationProvider>()
@@ -65,54 +65,61 @@ class _VideoCardState extends State<VideoCard> {
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child:
-                    //Card(backgroundColor: backgroundcolor, child: Text(data.title)),
-                    Card(
-                        backgroundColor: backgroundcolor,
-                        child: Column(
-                          children: [
-                            // Thumbnail at the top
-                            thumbnailExists
-                                ? Image.file(File(data.thumbnailPath))
-                                : Text("Thumbnail Pending"),
-                            Flexible(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 9,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                                      child: Text(
-                                        data.title,
-                                        style: const TextStyle(
-                                            fontSize: 12,
-                                            overflow: TextOverflow.fade),
-                                      ),
-                                    ),
+                // fluent Card is the main visual base
+                child: Card(
+                    backgroundColor: backgroundcolor,
+                    child: Column(
+                      children: [
+                        // Thumbnail at the top
+                        thumbnailExists
+                            ? Image.file(File(data.thumbnailPath))
+                            : const Text("Thumbnail Pending"),
+                        // Then the title and add to playlist button below that
+                        Flexible(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 9,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                                  child: Text(
+                                    data.title,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        overflow: TextOverflow.fade),
                                   ),
-                                  Flexible(
-                                    flex: 2,
-                                    child: Center(
-                                      child: IconButton(
-                                        iconButtonMode: IconButtonMode.large,
-                                        icon: const Icon(
-                                            FluentIcons.add_to_shopping_list,
-                                            size: 18),
-                                        onPressed: () {
-                                          log("Button Press");
-                                          context
-                                              .read<PlaylistProvider>()
-                                              .queueVideo(data);
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                ],
+                                ),
                               ),
-                            )
-                          ],
-                        )),
+                              // Button to add to playlist, clicking this will add
+                              //   the video to the playlist but not navigate to
+                              //   the playback screen and autoplay, basically lets
+                              //   you manually queue up videos
+                              Flexible(
+                                flex: 2,
+                                child: Center(
+                                  child: IconButton(
+                                    iconButtonMode: IconButtonMode.large,
+                                    icon: const Icon(
+                                        FluentIcons.add_to_shopping_list,
+                                        size: 18),
+                                    onPressed: () {
+                                      context
+                                          .read<PlaylistProvider>()
+                                          .queueVideo(data);
+
+                                      // Once it's on the playlist there should be some kind of
+                                      //   visual indicator that it happened, either a toast or
+                                      //   Maybe adding the playlist to the library view??
+                                    },
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    )),
               )),
         ));
   }

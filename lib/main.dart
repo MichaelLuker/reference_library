@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'package:provider/provider.dart';
@@ -14,7 +11,6 @@ import 'package:reference_library/fragments/settings_screen.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
-import 'package:system_theme/system_theme.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
@@ -39,6 +35,7 @@ void main() async {
     await windowManager.setSkipTaskbar(false);
   });
 
+  // Make sure the video player library is initialized
   DartVLC.initialize();
 
   // Start up the app
@@ -51,31 +48,23 @@ class ReferenceLibrary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Once my providers are actually set up...
+    // Providers for all the state bits
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => DataProvider()),
           ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
-          // ChangeNotifierProvider(create: (_) => Settings()),
-          // ChangeNotifierProvider(create: (_) => Data()),
-          // ChangeNotifierProvider(create: (_) => Playlist()),
         ],
+        // Fluent main app
         child: FluentApp(
           title: "Video Reference Library",
           debugShowCheckedModeBanner: false,
+          // Force dark mode
           darkTheme: ThemeData.dark(),
           themeMode: ThemeMode.dark,
+          // App content
           home: const App(),
         ));
-
-    // return FluentApp(
-    //   title: "Reference Library",
-    //   debugShowCheckedModeBanner: false,
-    //   darkTheme: ThemeData.dark(),
-    //   themeMode: ThemeMode.dark,
-    //   home: const App(),
-    // );
   }
 }
 
@@ -87,6 +76,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
+// Build the main app / navigation. Wrap everything up in a listener for hotkeys?
 class _AppState extends State<App> with WindowListener {
   @override
   Widget build(BuildContext context) {
@@ -94,8 +84,8 @@ class _AppState extends State<App> with WindowListener {
       focusNode: FocusNode(),
       autofocus: true,
       onKey: (event) {
+        // Hotkey to pause or resume video
         if (event.isKeyPressed(LogicalKeyboardKey.mediaPlayPause)) {
-          log("Play/Pause Pressed");
           context.read<PlaylistProvider>().playPause();
         }
         // Rewind 10 seconds
@@ -111,7 +101,7 @@ class _AppState extends State<App> with WindowListener {
         else if (event.isKeyPressed(LogicalKeyboardKey.keyL)) {}
       },
       child: NavigationView(
-          // Top bar with the app name and
+          // Top bar with the app name and windows buttons (min, max, quit)
           appBar: NavigationAppBar(
             // Hides a button that looks like a back button
             automaticallyImplyLeading: false,
@@ -139,16 +129,19 @@ class _AppState extends State<App> with WindowListener {
               ],
             ),
           ),
-          // Left size navigation bar
+          // Left side navigation bar
           pane: NavigationPane(
             // Hides the button that expands all the pane items to show titles, if they were set
             // but I want the slim hidden view all the time
             menuButton: Container(),
 
+            // Keeps the compact style even with different window sizes
+            displayMode: PaneDisplayMode.compact,
+
             /// Currently selected pane
             selected: context.watch<NavigationProvider>().index,
 
-            // List of navigation items and their icons
+            // List of navigation icons
             items: [
               PaneItem(icon: const Icon(FluentIcons.library)),
               PaneItem(icon: const Icon(FluentIcons.playlist_music)),
@@ -160,9 +153,6 @@ class _AppState extends State<App> with WindowListener {
             onChanged: (i) => setState(() => context
                 .read<NavigationProvider>()
                 .setIndex(i, context: context)),
-
-            // Keeps the compact style even with different window sizes
-            displayMode: PaneDisplayMode.compact,
 
             // Put the settings at the bottom of the nav with a separator
             footerItems: [
@@ -176,6 +166,7 @@ class _AppState extends State<App> with WindowListener {
           content: Stack(
             children: [
               NavigationBody(
+                  // Page transition animations
                   animationDuration: const Duration(milliseconds: 450),
                   transitionBuilder: (Widget c, Animation<double> a) =>
                       EntrancePageTransition(
@@ -186,6 +177,8 @@ class _AppState extends State<App> with WindowListener {
                         child: c,
                       ),
                   index: context.watch<NavigationProvider>().index,
+                  // List of all the different panes, has to match with the icon
+                  //   list above in the navigaion bar
                   children: [
                     LibraryScreen(),
                     const SeriesScreen(),
@@ -193,13 +186,16 @@ class _AppState extends State<App> with WindowListener {
                     const PlaybackScreen(),
                     const SettingsScreen()
                   ]),
+              // Check to see if the mini player should be hovering over everything
               context.read<NavigationProvider>().showMiniPlayer
                   ? GestureDetector(
+                      // Double tap mini player to go back to the main player
                       onDoubleTap: () {
                         context
                             .read<NavigationProvider>()
                             .goToPlayback(context: context);
                       },
+                      // Keep mini player in bottom right corner
                       child: Align(
                         alignment: Alignment.bottomRight,
                         child: SizedBox(
@@ -237,6 +233,8 @@ class _AppState extends State<App> with WindowListener {
                         ),
                       ),
                     )
+                  // Empty container if the mini player shouldn't be shown
+                  //   It doesn't like me trying to set null instead.
                   : Container(),
             ],
           )),

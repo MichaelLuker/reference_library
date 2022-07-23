@@ -7,6 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:localstore/localstore.dart';
 import 'package:youtube/youtube_thumbnail.dart';
 
+// Provides all video meta data to the rest of the app
+
+// Class for laying out data about video timestamps
 class TimestampData {
   List<String> tags = [];
   String videoId = "";
@@ -14,6 +17,8 @@ class TimestampData {
   String timestampString = "";
   late Duration timestamp;
 
+  // On init parse the timestamp string into a duration object for use in
+  //   playback seeks
   TimestampData(this.tags, this.videoId, this.topic, this.timestampString) {
     List<String> parts = timestampString.split(':');
     int hours = int.parse(parts[0]);
@@ -22,6 +27,7 @@ class TimestampData {
     timestamp = Duration(hours: hours, minutes: mins, seconds: seconds);
   }
 
+  // For dumping the object to a json object
   Map<String, dynamic> toMap() {
     return {
       'tags': tags,
@@ -31,6 +37,7 @@ class TimestampData {
     };
   }
 
+  // For creating a TimestampData object from a json object
   factory TimestampData.fromMap(Map<String, dynamic> map) {
     return TimestampData(
         List<String>.from(map['tags'].map((e) => e.toString())),
@@ -40,6 +47,7 @@ class TimestampData {
   }
 }
 
+// Class for laying out video data
 class VideoData {
   String videoId = "";
   String title = "";
@@ -53,6 +61,7 @@ class VideoData {
   List<TimestampData> timestamps = [];
   List<String> tags = [];
 
+  // Constructor
   VideoData(
       this.videoId,
       this.title,
@@ -80,6 +89,7 @@ class VideoData {
     thumbnailPath = possibleThumbnail.path;
   }
 
+  // Dump to json object
   Map<String, dynamic> toMap() {
     return {
       'videoId': videoId,
@@ -96,6 +106,7 @@ class VideoData {
     };
   }
 
+  // Create from json object
   factory VideoData.fromMap(Map<String, dynamic> map) {
     List<TimestampData> ts = [];
     if (!map['timestamps'].isEmpty) {
@@ -118,29 +129,34 @@ class VideoData {
   }
 }
 
+// Actual provider parts
 class DataProvider with ChangeNotifier {
-  List<String> _availableTags = [];
-  List<String> _availableSeries = [];
-  List<TimestampData> _allTimestamps = [];
-  List<VideoData> _allVideos = [];
+  final List<String> _availableTags = [];
+  final List<String> _availableSeries = [];
+  final List<TimestampData> _allTimestamps = [];
+  final List<VideoData> _allVideos = [];
   static final _localData = Localstore.instance.collection("VideoLibrary");
 
+  // When the provider is created run init
   DataProvider() {
     initValues();
   }
 
+  // Go and grab all the saved video data (if there is any)
   Future<void> initValues() async {
-    // Read in all the currently saved data
+    // Get the list of created tags
     await _localData.doc("Tags").get().then((value) {
       for (String t in value!["Tags"]) {
         _availableTags.add(t);
       }
     });
+    // And the list of series names
     await _localData.doc("Series").get().then((value) {
       for (String t in value!["Series"]) {
         _availableSeries.add(t);
       }
     });
+    // Then all the individual video data
     await _localData.get().then((value) {
       if (value == null || value.isEmpty) {
         return;
@@ -152,12 +168,16 @@ class DataProvider with ChangeNotifier {
         _allVideos.add(VideoData.fromMap(value[key]));
       }
     });
+    // Sort the tags and series alphabetically
     _availableTags.sort();
     _availableSeries.sort();
-    //_allVideos.sort();
     notifyListeners();
   }
 
+  // Functions to add, edit, and delete tags, series, videos, and timestamps will go here
+  // Maybe even the functions for downloading a video??
+
+  // Getters
   List<String> get tags => _availableTags;
   List<String> get series => _availableSeries;
   List<TimestampData> get timestamps => _allTimestamps;

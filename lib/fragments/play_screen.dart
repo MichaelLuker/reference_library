@@ -1,9 +1,5 @@
 import 'dart:developer';
-import 'dart:io';
-
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
@@ -142,11 +138,12 @@ class TimestampItem extends StatefulWidget {
   final TimestampData d;
 
   @override
+  // ignore: no_logic_in_create_state
   State<TimestampItem> createState() => _TimestampItemState(d);
 }
 
 class _TimestampItemState extends State<TimestampItem> {
-  _TimestampItemState(this.d, {Key? key});
+  _TimestampItemState(this.d);
   final TimestampData d;
   bool selected = false;
   Color backgroundcolor = ThemeData.dark().cardColor;
