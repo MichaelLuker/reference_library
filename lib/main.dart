@@ -13,6 +13,7 @@ import 'package:reference_library/fragments/settings_screen.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/providers/settings_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
@@ -45,15 +46,40 @@ void main() async {
 }
 
 // Widget containing the main app
-class ReferenceLibrary extends StatelessWidget {
+// ignore: must_be_immutable
+class ReferenceLibrary extends StatefulWidget {
   const ReferenceLibrary({Key? key}) : super(key: key);
 
   @override
+  State<ReferenceLibrary> createState() => _ReferenceLibraryState();
+}
+
+class _ReferenceLibraryState extends State<ReferenceLibrary> {
+  late DataProvider dp;
+
+  late SettingsProvider sp;
+
+  bool initialized = false;
+
+  @override
   Widget build(BuildContext context) {
-    // Providers for all the state bits
+    // Start by getting settings initialized, then data
+    if (!initialized) {
+      setState(() {
+        sp = SettingsProvider();
+        sp.initValues().then((_) {
+          dp = DataProvider(sp.dataFolder.path);
+
+          initialized = true;
+        });
+      });
+    }
+
+    // Then setup the rest of the app
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => DataProvider()),
+          ChangeNotifierProvider(create: (_) => sp),
+          ChangeNotifierProvider(create: (_) => dp),
           ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ],
@@ -82,25 +108,56 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WindowListener {
   @override
   Widget build(BuildContext context) {
+    LogicalKeyboardKey _playPause =
+        context.watch<SettingsProvider>().playPauseKey;
+    LogicalKeyboardKey _smallSkipAhead =
+        context.watch<SettingsProvider>().smallSkipAheadKey;
+    LogicalKeyboardKey _smallSkipBack =
+        context.watch<SettingsProvider>().smallSkipBackKey;
+    LogicalKeyboardKey _bigSkipAhead =
+        context.watch<SettingsProvider>().bigSkipAheadKey;
+    LogicalKeyboardKey _bigSkipBack =
+        context.watch<SettingsProvider>().bigSkipBackKey;
     return RawKeyboardListener(
       focusNode: FocusNode(),
       autofocus: true,
       onKey: (event) {
         // Hotkey to pause or resume video
-        if (event.isKeyPressed(LogicalKeyboardKey.mediaPlayPause)) {
+        if (event.isKeyPressed(_playPause)) {
           context.read<PlaylistProvider>().playPause();
         }
         // Rewind 10 seconds
-        else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+        else if (event.isKeyPressed(_smallSkipBack)) {
+          if (context.read<PlaylistProvider>().player.playback.isPlaying) {
+            context.read<PlaylistProvider>().jumpTo(
+                context.read<PlaylistProvider>().player.position.position! -
+                    context.read<SettingsProvider>().smallSkipTime);
+          }
         }
         // Fast Forward 10 seconds
-        else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        else if (event.isKeyPressed(_smallSkipAhead)) {
+          if (context.read<PlaylistProvider>().player.playback.isPlaying) {
+            context.read<PlaylistProvider>().jumpTo(
+                context.read<PlaylistProvider>().player.position.position! +
+                    context.read<SettingsProvider>().smallSkipTime);
+          }
         }
         // Rewind 30 seconds
-        else if (event.isKeyPressed(LogicalKeyboardKey.keyJ)) {
+        else if (event.isKeyPressed(_bigSkipBack)) {
+          if (context.read<PlaylistProvider>().player.playback.isPlaying) {
+            context.read<PlaylistProvider>().jumpTo(
+                context.read<PlaylistProvider>().player.position.position! -
+                    context.read<SettingsProvider>().bigSkipTime);
+          }
         }
         // Fast Forward 30 seconds
-        else if (event.isKeyPressed(LogicalKeyboardKey.keyL)) {}
+        else if (event.isKeyPressed(_bigSkipAhead)) {
+          if (context.read<PlaylistProvider>().player.playback.isPlaying) {
+            context.read<PlaylistProvider>().jumpTo(
+                context.read<PlaylistProvider>().player.position.position! +
+                    context.read<SettingsProvider>().bigSkipTime);
+          }
+        }
       },
       child: NavigationView(
           // Top bar with the app name and windows buttons (min, max, quit)
@@ -189,7 +246,8 @@ class _AppState extends State<App> with WindowListener {
                     const SettingsScreen()
                   ]),
               // Check to see if the mini player should be hovering over everything
-              context.read<NavigationProvider>().showMiniPlayer
+              (context.watch<NavigationProvider>().showMiniPlayer &&
+                      context.watch<SettingsProvider>().enableMiniPlayer)
                   ? GestureDetector(
                       // Double tap mini player to go back to the main player
                       onDoubleTap: () {

@@ -4,7 +4,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:reference_library/jcrud/jcrud.dart';
+import 'package:reference_library/providers/settings_provider.dart';
 import 'package:youtube/youtube_thumbnail.dart';
 
 // Provides all video meta data to the rest of the app
@@ -13,15 +15,18 @@ class DataProvider with ChangeNotifier {
   final List<String> _availableSeries = [];
   final List<TimestampData> _allTimestamps = [];
   final Map<String, VideoData> _allVideos = {};
-  static final _localData = jcrud("D:/Video Library/.localstore");
+  static late final _localData;
 
   // When the provider is created run init
-  DataProvider() {
-    initValues();
+  DataProvider(String dataFolder) {
+    initValues(dataFolder);
   }
 
   // Go and grab all the saved video data (if there is any)
-  void initValues() {
+  void initValues(String dataFolder) {
+    // Read from the set data folder
+    _localData = jcrud(dataFolder);
+
     // Get the list of created tags
     Map<String, dynamic> temp = _localData.read("Tags");
     if (temp.isNotEmpty) {
