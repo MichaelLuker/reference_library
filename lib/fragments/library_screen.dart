@@ -14,9 +14,9 @@ class LibraryScreen extends StatelessWidget {
   final ScrollController _sc = ScrollController();
   final int _extraScrollSpeed = 50;
 
-  List<Widget> buildResults(List<VideoData> videos) {
+  List<Widget> buildResults(Map<String, VideoData> videos) {
     List<Widget> r = [];
-    for (VideoData v in videos) {
+    for (VideoData v in videos.values) {
       r.add(VideoCard(v));
     }
     return r;

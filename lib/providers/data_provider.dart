@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -11,7 +12,7 @@ class DataProvider with ChangeNotifier {
   final List<String> _availableTags = [];
   final List<String> _availableSeries = [];
   final List<TimestampData> _allTimestamps = [];
-  final List<VideoData> _allVideos = [];
+  final Map<String, VideoData> _allVideos = {};
   static final _localData = jcrud("D:/Video Library/.localstore");
 
   // When the provider is created run init
@@ -43,7 +44,7 @@ class DataProvider with ChangeNotifier {
         if (key == "Tags" || key == "Series") {
           continue;
         }
-        _allVideos.add(VideoData.fromMap(temp[key]));
+        _allVideos[key] = VideoData.fromMap(temp[key]);
       }
     }
     // Sort the tags and series alphabetically
@@ -52,14 +53,170 @@ class DataProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Functions to add, edit, and delete tags, series, videos, and timestamps will go here
-  // Maybe even the functions for downloading a video??
+  // Tag create and delete
+  void addTag(String t) {
+    if (!_availableTags.contains(t)) {
+      _availableTags.add(t);
+      _localData.update("Tags", {"Tags": _availableTags});
+      notifyListeners();
+    }
+  }
+
+  void deleteTag(String t) {
+    if (_availableTags.contains(t)) {
+      _availableTags.remove(t);
+      _localData.update("Tags", {"Tags": _availableTags});
+      notifyListeners();
+    }
+  }
+
+  // Series CRUD
+  void createSeries(String seriesName, {List<String> videoIds = const []}) {
+    // Add the new series to the list
+    if (!_availableSeries.contains(seriesName)) {
+      _availableSeries.add(seriesName);
+    }
+
+    // If a list of video ids was sent update their data too
+    if (videoIds.isNotEmpty) {
+      int i = 0;
+      for (String v in videoIds) {
+        // Set the series values for the video
+        _allVideos[v]!.series = true;
+        _allVideos[v]!.seriesTitle = seriesName;
+        _allVideos[v]!.seriesIndex = i;
+        i++;
+        // Write the file for the updated video
+        _localData.update(v, _allVideos[v]!.toMap());
+      }
+    }
+
+    // Update the series data file
+    _localData.update("Series", {"Series": _availableSeries});
+    notifyListeners();
+  }
+
+  // I don't know if this one is actually needed since it all gets read at startup?
+  //void readSeries() {}
+
+  // Updates a series, I guess it's only renaming?
+  void updateSeries(String oldName, String newName) {
+    // First double check that the old name and new name aren't the same, oldName is in the list, and newName is not in the list
+    if (oldName == newName ||
+        _availableSeries.contains(newName) ||
+        !_availableSeries.contains(oldName)) {
+      return;
+    }
+
+    // Swap out the old and new names in the in memory list
+    _availableSeries.remove(oldName);
+    if (!_availableSeries.contains(newName)) {}
+    _availableSeries.add(newName);
+
+    // Update any videos that had the old series title with the new one
+    for (VideoData v in _allVideos.values) {
+      if (v.seriesTitle == oldName) {
+        _allVideos[v.videoId]!.seriesTitle = newName;
+        _localData.update(v.videoId, v.toMap());
+      }
+    }
+
+    // Update the series data file
+    _localData.update("Series", {"Series": _availableSeries});
+    notifyListeners();
+  }
+
+  void deleteSeries(String seriesName) {
+    // Remove from the in-mem list
+    _availableSeries.remove(seriesName);
+
+    // For any videos that were in the series reset them
+    for (VideoData v in _allVideos.values) {
+      if (v.seriesTitle == seriesName) {
+        _allVideos[v.videoId]!.series = false;
+        _allVideos[v.videoId]!.seriesIndex = 0;
+        _allVideos[v.videoId]!.seriesTitle = "";
+        _localData.update(v.videoId, v.toMap());
+      }
+    }
+
+    // Update the series data file
+    _localData.update("Series", {"Series": _availableSeries});
+    notifyListeners();
+  }
+
+  // Video CRUD
+  // Creats a new video file
+  void createVideo(VideoData v) {
+    if (!_allVideos.containsKey(v.videoId)) {
+      _allVideos[v.videoId] = v;
+      _localData.update(v.videoId, v.toMap());
+      notifyListeners();
+    }
+  }
+
+  // I don't know if this one is needed either...
+  //void readVideo() {}
+
+  // Updates an old video data entry to a new one
+  void updateVideo(VideoData oldVid, VideoData newVid) {
+    if (oldVid != newVid) {
+      if (_allVideos.containsKey(oldVid.videoId)) {
+        _allVideos.remove(oldVid.videoId);
+        _allVideos[newVid.videoId] = newVid;
+        _localData.delete(oldVid.videoId);
+        _localData.update(newVid.videoId, newVid.toMap());
+        notifyListeners();
+      }
+    }
+  }
+
+  // Delete a video
+  void deleteVideo(String videoId) {
+    if (_allVideos.containsKey(videoId)) {
+      _allVideos.remove(videoId);
+      _localData.delete(videoId);
+      notifyListeners();
+    }
+  }
+
+  // Timestamp CRUD
+  // Adds timestamp to a video if it's not already on the list
+  void createTimestamp(String videoId, TimestampData t) {
+    if (!_allVideos[videoId]!.timestamps.contains(t)) {
+      _allVideos[videoId]?.timestamps.add(t);
+      _localData.update(videoId, _allVideos[videoId]!.toMap());
+      notifyListeners();
+    }
+  }
+
+  // Don't know if I need this
+  // void readTimestamp() {}
+
+  // Similar idea to updating a video where you swap out the old ts and put in the new one
+  void updateTimestamp(String videoId, int index, TimestampData newTS) {
+    if (_allVideos[videoId]!.timestamps.length >= index + 1) {
+      _allVideos[videoId]?.timestamps[index] = newTS;
+      _localData.update(videoId, _allVideos[videoId]!.toMap());
+      notifyListeners();
+    }
+  }
+
+  // Deletes the timestamp
+  void deleteTimestamp(String videoId, int index) {
+    if (_allVideos[videoId]!.timestamps.length >= index + 1) {
+      _allVideos[videoId]?.timestamps.removeAt(index);
+      log(_allVideos[videoId]!.timestamps.toString());
+      _localData.update(videoId, _allVideos[videoId]!.toMap());
+      notifyListeners();
+    }
+  }
 
   // Getters
   List<String> get tags => _availableTags;
   List<String> get series => _availableSeries;
   List<TimestampData> get timestamps => _allTimestamps;
-  List<VideoData> get videos => _allVideos;
+  Map<String, VideoData> get videos => _allVideos;
 }
 
 // Class for laying out data about video timestamps
@@ -80,13 +237,18 @@ class TimestampData {
     timestamp = Duration(hours: hours, minutes: mins, seconds: seconds);
   }
 
+  // Clone a timestamp object
+  TimestampData clone() {
+    return TimestampData(tags, videoId, topic, timestampString);
+  }
+
   // For dumping the object to a json object
   Map<String, dynamic> toMap() {
     return {
       'tags': tags,
       'videoId': videoId,
       'topic': topic,
-      'timestampString': timestampString
+      'time': timestampString
     };
   }
 
@@ -129,22 +291,29 @@ class VideoData {
     // Check to see if a thumbnail exists, if it doesn't then download and save it
     File possibleThumbnail = File("D:/Video Library/.thumbnails/$videoId.jpg");
     if (!possibleThumbnail.existsSync()) {
-      String tmbUrl =
-          YoutubeThumbnail(youtubeId: url.split('watch?v=').last).hq();
-      NetworkAssetBundle(Uri.parse(tmbUrl)).load(tmbUrl).then((value) {
-        log(value.toString());
-        Uint8List tmbBytes = value.buffer.asUint8List();
-        possibleThumbnail
-            .create()
-            .then((value) => value.writeAsBytes(tmbBytes));
-      });
+      if (url.contains("youtube")) {
+        String tmbUrl =
+            YoutubeThumbnail(youtubeId: url.split('watch?v=').last).hq();
+        NetworkAssetBundle(Uri.parse(tmbUrl)).load(tmbUrl).then((value) {
+          Uint8List tmbBytes = value.buffer.asUint8List();
+          possibleThumbnail
+              .create()
+              .then((value) => value.writeAsBytes(tmbBytes));
+        });
+      }
     }
     thumbnailPath = possibleThumbnail.path;
   }
 
+  // Clone a video object
+  VideoData clone() {
+    return VideoData(videoId, title, localPath, series, seriesTitle,
+        seriesIndex, complete, url, timestamps, tags);
+  }
+
   // Dump to json object
   Map<String, dynamic> toMap() {
-    return {
+    Map<String, dynamic> r = {
       'videoId': videoId,
       'title': title,
       'localPath': localPath,
@@ -154,9 +323,10 @@ class VideoData {
       'seriesIndex': seriesIndex,
       'complete': complete,
       'url': url,
-      'timestamps': timestamps.map((e) => e.toMap()),
+      'timestamps': timestamps.map((e) => e.toMap()).toList(),
       'tags': tags
     };
+    return r;
   }
 
   // Create from json object
@@ -164,7 +334,7 @@ class VideoData {
     List<TimestampData> ts = [];
     if (!map['timestamps'].isEmpty) {
       for (Map<String, dynamic> d in map['timestamps']) {
-        d['videoId'] = '';
+        //d['videoId'] = '';
         ts.add(TimestampData.fromMap(d));
       }
     }

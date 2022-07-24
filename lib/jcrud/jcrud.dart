@@ -1,5 +1,6 @@
 // JCRUD => JSON CRUD => Javascript Object Notation Create Read Update Delete
 
+import 'dart:developer';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:convert';
@@ -54,9 +55,11 @@ class jcrud {
   void update(String fileName, Map<String, dynamic> obj) async {
     File newFile = File("$_base/$fileName");
     newFile.exists().then((e) {
-      if (e) {
-        newFile.writeAsString(jsonEncode(obj));
+      // If the file doesn't exist create it first
+      if (!e) {
+        newFile.createSync();
       }
+      newFile.writeAsString(jsonEncode(obj));
     });
   }
 

@@ -21,7 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final int _extraScrollSpeed = 50;
   // List of tags from the data provider
   late List<String> _tags;
-  late List<VideoData> _videos;
+  late Map<String, VideoData> _videos;
   // Stores the state of if a tag is selected or not for visual updating
   final Map<String, bool> _chipSelect = {};
   // List of the actually selected tags that will be used for filtering
@@ -69,9 +69,9 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  List<Widget> buildResults(List<VideoData> videos) {
+  List<Widget> buildResults(Map<String, VideoData> videos) {
     List<Widget> r = [];
-    for (VideoData v in videos) {
+    for (VideoData v in videos.values) {
       r.add(VideoCard(v));
     }
     return r;

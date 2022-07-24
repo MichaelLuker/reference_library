@@ -148,8 +148,11 @@ class PlaylistProvider with ChangeNotifier {
   }
 
   VideoData _randomVideo() {
-    int r = math.Random().nextInt(_context!.read<DataProvider>().videos.length);
-    return _context!.read<DataProvider>().videos[r];
+    List<String> keys = _context!.read<DataProvider>().videos.keys.toList();
+    int r = math.Random().nextInt(keys.length);
+    String randomKey = keys[r];
+    VideoData randomVideo = _context!.read<DataProvider>().videos[randomKey]!;
+    return randomVideo;
   }
 
   // Getters for different variables
