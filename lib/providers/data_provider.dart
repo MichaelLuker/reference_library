@@ -1,13 +1,66 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:localstore/localstore.dart';
+import 'package:reference_library/jcrud/jcrud.dart';
 import 'package:youtube/youtube_thumbnail.dart';
 
 // Provides all video meta data to the rest of the app
+class DataProvider with ChangeNotifier {
+  final List<String> _availableTags = [];
+  final List<String> _availableSeries = [];
+  final List<TimestampData> _allTimestamps = [];
+  final List<VideoData> _allVideos = [];
+  static final _localData = jcrud("D:/Video Library/.localstore");
+
+  // When the provider is created run init
+  DataProvider() {
+    initValues();
+  }
+
+  // Go and grab all the saved video data (if there is any)
+  void initValues() {
+    // Get the list of created tags
+    Map<String, dynamic> temp = _localData.read("Tags");
+    if (temp.isNotEmpty) {
+      for (String t in temp["Tags"]) {
+        _availableTags.add(t);
+      }
+    }
+    // And the list of series names
+    temp = _localData.read("Series");
+    if (temp.isNotEmpty) {
+      for (String t in temp["Series"]) {
+        _availableSeries.add(t);
+      }
+    }
+    // Then all the individual video data
+    temp = _localData.readAll();
+    if (temp.isNotEmpty) {
+      for (String key in temp.keys) {
+        // Skip over the Tags and Series files
+        if (key == "Tags" || key == "Series") {
+          continue;
+        }
+        _allVideos.add(VideoData.fromMap(temp[key]));
+      }
+    }
+    // Sort the tags and series alphabetically
+    _availableTags.sort();
+    _availableSeries.sort();
+    notifyListeners();
+  }
+
+  // Functions to add, edit, and delete tags, series, videos, and timestamps will go here
+  // Maybe even the functions for downloading a video??
+
+  // Getters
+  List<String> get tags => _availableTags;
+  List<String> get series => _availableSeries;
+  List<TimestampData> get timestamps => _allTimestamps;
+  List<VideoData> get videos => _allVideos;
+}
 
 // Class for laying out data about video timestamps
 class TimestampData {
@@ -127,59 +180,4 @@ class VideoData {
         ts,
         List<String>.from(map['tags'].map((e) => e.toString())));
   }
-}
-
-// Actual provider parts
-class DataProvider with ChangeNotifier {
-  final List<String> _availableTags = [];
-  final List<String> _availableSeries = [];
-  final List<TimestampData> _allTimestamps = [];
-  final List<VideoData> _allVideos = [];
-  static final _localData = Localstore.instance.collection("VideoLibrary");
-
-  // When the provider is created run init
-  DataProvider() {
-    initValues();
-  }
-
-  // Go and grab all the saved video data (if there is any)
-  Future<void> initValues() async {
-    // Get the list of created tags
-    await _localData.doc("Tags").get().then((value) {
-      for (String t in value!["Tags"]) {
-        _availableTags.add(t);
-      }
-    });
-    // And the list of series names
-    await _localData.doc("Series").get().then((value) {
-      for (String t in value!["Series"]) {
-        _availableSeries.add(t);
-      }
-    });
-    // Then all the individual video data
-    await _localData.get().then((value) {
-      if (value == null || value.isEmpty) {
-        return;
-      }
-      for (String key in value.keys) {
-        if (key == "\\VideoLibrary\\Tags" || key == "\\VideoLibrary\\Series") {
-          continue;
-        }
-        _allVideos.add(VideoData.fromMap(value[key]));
-      }
-    });
-    // Sort the tags and series alphabetically
-    _availableTags.sort();
-    _availableSeries.sort();
-    notifyListeners();
-  }
-
-  // Functions to add, edit, and delete tags, series, videos, and timestamps will go here
-  // Maybe even the functions for downloading a video??
-
-  // Getters
-  List<String> get tags => _availableTags;
-  List<String> get series => _availableSeries;
-  List<TimestampData> get timestamps => _allTimestamps;
-  List<VideoData> get videos => _allVideos;
 }
