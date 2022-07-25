@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
@@ -47,39 +45,16 @@ void main() async {
 
 // Widget containing the main app
 // ignore: must_be_immutable
-class ReferenceLibrary extends StatefulWidget {
+class ReferenceLibrary extends StatelessWidget {
   const ReferenceLibrary({Key? key}) : super(key: key);
 
   @override
-  State<ReferenceLibrary> createState() => _ReferenceLibraryState();
-}
-
-class _ReferenceLibraryState extends State<ReferenceLibrary> {
-  late DataProvider dp;
-
-  late SettingsProvider sp;
-
-  bool initialized = false;
-
-  @override
   Widget build(BuildContext context) {
-    // Start by getting settings initialized, then data
-    if (!initialized) {
-      setState(() {
-        sp = SettingsProvider();
-        sp.initValues().then((_) {
-          dp = DataProvider(sp.dataFolder.path);
-
-          initialized = true;
-        });
-      });
-    }
-
     // Then setup the rest of the app
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => sp),
-          ChangeNotifierProvider(create: (_) => dp),
+          ChangeNotifierProvider(create: (_) => SettingsProvider()),
+          ChangeNotifierProvider(create: (_) => DataProvider()),
           ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ],
@@ -108,26 +83,26 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WindowListener {
   @override
   Widget build(BuildContext context) {
-    LogicalKeyboardKey _playPause =
+    LogicalKeyboardKey playPause =
         context.watch<SettingsProvider>().playPauseKey;
-    LogicalKeyboardKey _smallSkipAhead =
+    LogicalKeyboardKey smallSkipAhead =
         context.watch<SettingsProvider>().smallSkipAheadKey;
-    LogicalKeyboardKey _smallSkipBack =
+    LogicalKeyboardKey smallSkipBack =
         context.watch<SettingsProvider>().smallSkipBackKey;
-    LogicalKeyboardKey _bigSkipAhead =
+    LogicalKeyboardKey bigSkipAhead =
         context.watch<SettingsProvider>().bigSkipAheadKey;
-    LogicalKeyboardKey _bigSkipBack =
+    LogicalKeyboardKey bigSkipBack =
         context.watch<SettingsProvider>().bigSkipBackKey;
     return RawKeyboardListener(
       focusNode: FocusNode(),
       autofocus: true,
       onKey: (event) {
         // Hotkey to pause or resume video
-        if (event.isKeyPressed(_playPause)) {
+        if (event.isKeyPressed(playPause)) {
           context.read<PlaylistProvider>().playPause();
         }
         // Rewind 10 seconds
-        else if (event.isKeyPressed(_smallSkipBack)) {
+        else if (event.isKeyPressed(smallSkipBack)) {
           if (context.read<PlaylistProvider>().player.playback.isPlaying) {
             context.read<PlaylistProvider>().jumpTo(
                 context.read<PlaylistProvider>().player.position.position! -
@@ -135,7 +110,7 @@ class _AppState extends State<App> with WindowListener {
           }
         }
         // Fast Forward 10 seconds
-        else if (event.isKeyPressed(_smallSkipAhead)) {
+        else if (event.isKeyPressed(smallSkipAhead)) {
           if (context.read<PlaylistProvider>().player.playback.isPlaying) {
             context.read<PlaylistProvider>().jumpTo(
                 context.read<PlaylistProvider>().player.position.position! +
@@ -143,7 +118,7 @@ class _AppState extends State<App> with WindowListener {
           }
         }
         // Rewind 30 seconds
-        else if (event.isKeyPressed(_bigSkipBack)) {
+        else if (event.isKeyPressed(bigSkipBack)) {
           if (context.read<PlaylistProvider>().player.playback.isPlaying) {
             context.read<PlaylistProvider>().jumpTo(
                 context.read<PlaylistProvider>().player.position.position! -
@@ -151,7 +126,7 @@ class _AppState extends State<App> with WindowListener {
           }
         }
         // Fast Forward 30 seconds
-        else if (event.isKeyPressed(_bigSkipAhead)) {
+        else if (event.isKeyPressed(bigSkipAhead)) {
           if (context.read<PlaylistProvider>().player.playback.isPlaying) {
             context.read<PlaylistProvider>().jumpTo(
                 context.read<PlaylistProvider>().player.position.position! +
@@ -243,7 +218,7 @@ class _AppState extends State<App> with WindowListener {
                     const SeriesScreen(),
                     const SearchScreen(),
                     const PlaybackScreen(),
-                    const SettingsScreen()
+                    SettingsScreen()
                   ]),
               // Check to see if the mini player should be hovering over everything
               (context.watch<NavigationProvider>().showMiniPlayer &&

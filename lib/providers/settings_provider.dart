@@ -6,7 +6,9 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:reference_library/jcrud/jcrud.dart';
+import 'package:reference_library/providers/data_provider.dart';
 
 class SettingsProvider with ChangeNotifier {
   // Name of the settings file that will live in temp directory
@@ -34,6 +36,9 @@ class SettingsProvider with ChangeNotifier {
   late Duration _smallSkipTime;
   late Duration _bigSkipTime;
 
+  late Map<String, dynamic> savedSettings;
+  late jcrud settingsFile;
+
   // Constructor
   SettingsProvider() {
     initValues();
@@ -45,10 +50,10 @@ class SettingsProvider with ChangeNotifier {
 
     log(value.path);
     // Using jcrud to read / save settings
-    jcrud settingsFile = jcrud(value.path);
+    settingsFile = jcrud(value.path);
 
     // Try reading the file
-    Map<String, dynamic> savedSettings = settingsFile.read(_settingsFileName);
+    savedSettings = settingsFile.read(_settingsFileName);
 
     // If it's an empty response then the file should be created and defaults set
     if (savedSettings.isEmpty) {
@@ -56,9 +61,9 @@ class SettingsProvider with ChangeNotifier {
       settingsFile.create(_settingsFileName);
       // Set default options
       _enableMiniPlayer = true;
-      _videoFolder = Directory("${value.path}/videos");
-      _dataFolder = Directory("${value.path}/.localstore");
-      _thumbFolder = Directory("${value.path}/.thumbnails");
+      _videoFolder = Directory("${value.path}\\videos");
+      _dataFolder = Directory("${value.path}\\.localstore");
+      _thumbFolder = Directory("${value.path}\\.localstore\\.thumbnails");
       _videoFolder.create();
       _dataFolder.create();
       _thumbFolder.create();
@@ -105,6 +110,8 @@ class SettingsProvider with ChangeNotifier {
   // Setters
   void setEnableMiniPlayer(bool b) {
     _enableMiniPlayer = b;
+    savedSettings["enableMiniPlayer"] = b;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
@@ -112,14 +119,19 @@ class SettingsProvider with ChangeNotifier {
     Directory d = Directory(p);
     if (d.existsSync()) {
       _videoFolder = d;
+      savedSettings["videoFolder"] = _videoFolder.path;
+      settingsFile.update(_settingsFileName, savedSettings);
       notifyListeners();
     }
   }
 
-  void setDataFolder(String p) {
+  void setDataFolder(BuildContext context, String p) {
     Directory d = Directory(p);
     if (d.existsSync()) {
       _dataFolder = d;
+      savedSettings["dataFolder"] = _dataFolder.path;
+      settingsFile.update(_settingsFileName, savedSettings);
+      context.read<DataProvider>().changeDataFolder(context);
       notifyListeners();
     }
   }
@@ -128,42 +140,69 @@ class SettingsProvider with ChangeNotifier {
     Directory d = Directory(p);
     if (d.existsSync()) {
       _thumbFolder = d;
+      savedSettings["thumbFolder"] = _thumbFolder.path;
+      settingsFile.update(_settingsFileName, savedSettings);
       notifyListeners();
     }
   }
 
+  bool checkHotkey(int id) {
+    if (id == _playPause.keyId ||
+        id == _smallSkipAhead.keyId ||
+        id == _smallSkipBack.keyId ||
+        id == _bigSkipAhead.keyId ||
+        id == _bigSkipBack.keyId) {
+      return false;
+    }
+    return true;
+  }
+
   void setPlayPauseKey(int i) {
     _playPause = LogicalKeyboardKey(i);
+    savedSettings["playPause"] = _playPause.keyId;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setSmallSkipAheadKey(int i) {
     _smallSkipAhead = LogicalKeyboardKey(i);
+    savedSettings["smallSkipAhead"] = _smallSkipAhead.keyId;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setSmallSkipBackKey(int i) {
     _smallSkipBack = LogicalKeyboardKey(i);
+    savedSettings["smallSkipBack"] = _smallSkipBack.keyId;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setBigSkipAheadKey(int i) {
     _bigSkipAhead = LogicalKeyboardKey(i);
+    savedSettings["bigSkipAhead"] = _bigSkipAhead.keyId;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setBigSkipBackKey(int i) {
     _bigSkipBack = LogicalKeyboardKey(i);
+    savedSettings["bigSkipBack"] = _bigSkipBack.keyId;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setSmallSkipTime(int s) {
     _smallSkipTime = Duration(seconds: s);
+    savedSettings["smallSkipTime"] = _smallSkipTime.inSeconds;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 
   void setBigSkipTime(int s) {
     _bigSkipTime = Duration(seconds: s);
+    savedSettings["bigSkipTime"] = _bigSkipTime.inSeconds;
+    settingsFile.update(_settingsFileName, savedSettings);
     notifyListeners();
   }
 

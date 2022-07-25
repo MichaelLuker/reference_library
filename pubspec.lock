@@ -85,6 +85,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.2"
+  filepicker_windows:
+    dependency: "direct main"
+    description:
+      name: filepicker_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.2"
   fluent_ui:
     dependency: "direct main"
     description:
@@ -197,7 +204,7 @@ packages:
     source: hosted
     version: "1.0.0"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"

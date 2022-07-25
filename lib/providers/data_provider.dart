@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/jcrud/jcrud.dart';
 import 'package:reference_library/providers/settings_provider.dart';
@@ -15,17 +15,32 @@ class DataProvider with ChangeNotifier {
   final List<String> _availableSeries = [];
   final List<TimestampData> _allTimestamps = [];
   final Map<String, VideoData> _allVideos = {};
-  static late final _localData;
+  static late jcrud _localData;
+  // Name of the settings file that will live in temp directory
+  final String _settingsFileName = "VRL_Settings";
 
   // When the provider is created run init
-  DataProvider(String dataFolder) {
-    initValues(dataFolder);
+  DataProvider() {
+    initValues();
   }
 
   // Go and grab all the saved video data (if there is any)
-  void initValues(String dataFolder) {
-    // Read from the set data folder
-    _localData = jcrud(dataFolder);
+  void initValues({bool fullInit = true}) async {
+    if (fullInit) {
+      // Use temp directory to save app settings
+      Directory value = await getTemporaryDirectory();
+      jcrud localSettings = jcrud(value.path);
+      Map<String, dynamic> savedSettings =
+          localSettings.read(_settingsFileName);
+      String dataFolder = "";
+      if (savedSettings.isEmpty) {
+        dataFolder = "${value.path}\\.localstore";
+      } else {
+        dataFolder = savedSettings["dataFolder"];
+      }
+      // Read from the set data folder
+      _localData = jcrud(dataFolder);
+    }
 
     // Get the list of created tags
     Map<String, dynamic> temp = _localData.read("Tags");
@@ -56,6 +71,13 @@ class DataProvider with ChangeNotifier {
     _availableTags.sort();
     _availableSeries.sort();
     notifyListeners();
+  }
+
+  // Change in settings
+  void changeDataFolder(BuildContext context) {
+    _localData = jcrud(context.read<SettingsProvider>().dataFolder.path);
+    // Read in values from the new folder
+    initValues(fullInit: false);
   }
 
   // Tag create and delete
