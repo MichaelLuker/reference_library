@@ -233,7 +233,6 @@ class DataProvider with ChangeNotifier {
   void deleteTimestamp(String videoId, int index) {
     if (_allVideos[videoId]!.timestamps.length >= index + 1) {
       _allVideos[videoId]?.timestamps.removeAt(index);
-      log(_allVideos[videoId]!.timestamps.toString());
       _localData.update(videoId, _allVideos[videoId]!.toMap());
       notifyListeners();
     }
@@ -280,10 +279,10 @@ class TimestampData {
   }
 
   // For creating a TimestampData object from a json object
-  factory TimestampData.fromMap(Map<String, dynamic> map) {
+  factory TimestampData.fromMap(String videoId, Map<String, dynamic> map) {
     return TimestampData(
         List<String>.from(map['tags'].map((e) => e.toString())),
-        map['videoId'],
+        videoId,
         map['topic'],
         map['time']);
   }
@@ -362,7 +361,8 @@ class VideoData {
     if (!map['timestamps'].isEmpty) {
       for (Map<String, dynamic> d in map['timestamps']) {
         //d['videoId'] = '';
-        ts.add(TimestampData.fromMap(d));
+        ts.add(TimestampData.fromMap(
+            map['title'].toString().toLowerCase().replaceAll(' ', '_'), d));
       }
     }
     return VideoData(

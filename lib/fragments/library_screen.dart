@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/fragments/play_screen.dart';
 import 'package:reference_library/fragments/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
+
+import 'package:reference_library/providers/playlist_provider.dart';
 
 // I think this can be stateless, it'll just rebuild a grid like view of videos based on the data provider
 // If a video is clicked then it'll just throw it on the playlist and jump to the playing pane
@@ -38,10 +41,22 @@ class LibraryScreen extends StatelessWidget {
     });
 
     return ScaffoldPage(
-      content: GridView.count(
-          controller: _sc,
-          crossAxisCount: 5,
-          children: buildResults(context.watch<DataProvider>().videos)),
+      content: Row(
+        children: [
+          (context.watch<PlaylistProvider>().playList.isNotEmpty)
+              ? SizedBox(width: 250, child: PlayListWidget())
+              : Container(),
+          SizedBox(
+            width: (context.watch<PlaylistProvider>().playList.isNotEmpty)
+                ? MediaQuery.of(context).size.width - 300
+                : MediaQuery.of(context).size.width - 50,
+            child: GridView.count(
+                controller: _sc,
+                crossAxisCount: 5,
+                children: buildResults(context.watch<DataProvider>().videos)),
+          ),
+        ],
+      ),
     );
   }
 }

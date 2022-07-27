@@ -13,18 +13,7 @@ class PlaybackScreen extends StatelessWidget {
   List<Widget> buildTimestamps(BuildContext context, List<TimestampData> ts) {
     List<Widget> r = [];
     for (TimestampData d in ts) {
-      log(ts.length.toString());
       r.add(TimestampItem(d));
-    }
-    return r;
-  }
-
-  List<Widget> buildPlaylist(BuildContext context, List<VideoData> pl) {
-    List<Widget> r = [];
-    for (VideoData d in pl) {
-      log(pl.length.toString());
-      r.add(
-          PlaylistItem(d, d == context.read<PlaylistProvider>().currentVideo));
     }
     return r;
   }
@@ -85,23 +74,7 @@ class PlaybackScreen extends StatelessWidget {
                                   )))
                         ],
                       ))),
-                  Expanded(
-                      flex: 11,
-                      child: SizedBox(
-                          child: Column(
-                        children: [
-                          const Text(
-                            "Playlist",
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          Expanded(
-                              child: SingleChildScrollView(
-                                  controller: ScrollController(),
-                                  child: Wrap(
-                                    children: buildPlaylist(context, playList),
-                                  )))
-                        ],
-                      ))),
+                  Expanded(flex: 11, child: SizedBox(child: PlayListWidget())),
                   SizedBox(
                     height: 28,
                     child: Row(
@@ -129,6 +102,36 @@ class PlaybackScreen extends StatelessWidget {
           ],
         )),
       ),
+    );
+  }
+}
+
+class PlayListWidget extends StatelessWidget {
+  List<Widget> buildPlaylist(BuildContext context, List<VideoData> pl) {
+    List<Widget> r = [];
+    for (VideoData d in pl) {
+      r.add(
+          PlaylistItem(d, d == context.read<PlaylistProvider>().currentVideo));
+    }
+    return r;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<VideoData> pl = context.watch<PlaylistProvider>().playList;
+    return Column(
+      children: [
+        const Text(
+          "Playlist",
+          style: TextStyle(fontSize: 18),
+        ),
+        Expanded(
+            child: SingleChildScrollView(
+                controller: ScrollController(),
+                child: Wrap(
+                  children: buildPlaylist(context, pl),
+                )))
+      ],
     );
   }
 }
@@ -217,7 +220,7 @@ class PlaylistItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       tileColor: playingVideo
-          ? Colors.orange.withAlpha(150)
+          ? Color.fromARGB(255, 40, 109, 228)
           : material.ThemeData.dark().cardColor,
       shape: const Border.symmetric(horizontal: BorderSide()),
       title: Text(

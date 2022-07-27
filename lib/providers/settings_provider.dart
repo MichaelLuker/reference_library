@@ -48,7 +48,6 @@ class SettingsProvider with ChangeNotifier {
     // Use temp directory to save app settings
     Directory value = await getTemporaryDirectory();
 
-    log(value.path);
     // Using jcrud to read / save settings
     settingsFile = jcrud(value.path);
 

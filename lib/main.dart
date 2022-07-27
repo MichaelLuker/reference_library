@@ -28,7 +28,7 @@ void main() async {
       windowButtonVisibility: false,
     );
     //await windowManager.setSize(const Size(1400, 800));
-    await windowManager.maximize();
+    //await windowManager.maximize();
     await windowManager.setMinimumSize(const Size(1024, 720));
     //await windowManager.center();
     await windowManager.show();
@@ -94,7 +94,7 @@ class _AppState extends State<App> with WindowListener {
     LogicalKeyboardKey bigSkipBack =
         context.watch<SettingsProvider>().bigSkipBackKey;
     return RawKeyboardListener(
-      focusNode: FocusNode(),
+      focusNode: context.watch<NavigationProvider>().mainAppFocus,
       autofocus: true,
       onKey: (event) {
         // Hotkey to pause or resume video

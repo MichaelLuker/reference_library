@@ -61,11 +61,11 @@ class PlaylistProvider with ChangeNotifier {
     }
 
     if (_currentVideo == null) {
-      log("No current video, setting ${d.title}");
       _currentVideo = d;
       _playListIndex = 0;
       _loadVideo(autoStart: false);
     }
+    notifyListeners();
   }
 
   // Tells the player to actually load the current video, and auto play it if
@@ -136,7 +136,6 @@ class PlaylistProvider with ChangeNotifier {
 
   // Seeks video to the sent timestampe in the form of a duration from 00:00:00
   void jumpTo(Duration dur) {
-    log(dur.toString());
     _player.seek(dur);
   }
 

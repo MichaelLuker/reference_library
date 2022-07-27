@@ -4,6 +4,7 @@ import 'package:filepicker_windows/filepicker_windows.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
 
 // All the different settings, series, tags, add new videos, edit data on existing ones?
@@ -64,7 +65,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Enable Mini Player  |  "),
+                  const SizedBox(width: 155, child: Text("Enable Mini Player")),
+                  const Text("  |  "),
                   ToggleSwitch(
                       checked:
                           context.watch<SettingsProvider>().enableMiniPlayer,
@@ -78,8 +80,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Data Folder  |  "),
-                  Text(context.watch<SettingsProvider>().dataFolder.path),
+                  const SizedBox(width: 155, child: Text("Data Folder")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
                       onPressed: () {
@@ -92,7 +94,8 @@ class SettingsScreen extends StatelessWidget {
                               .read<SettingsProvider>()
                               .setDataFolder(context, newD.path);
                         }
-                      })
+                      }),
+                  Text(context.watch<SettingsProvider>().dataFolder.path),
                 ],
               ),
             ),
@@ -100,8 +103,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Video Folder  |  "),
-                  Text(context.watch<SettingsProvider>().videoFolder.path),
+                  const SizedBox(width: 155, child: Text("Video Folder")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
                       onPressed: () {
@@ -114,7 +117,8 @@ class SettingsScreen extends StatelessWidget {
                               .read<SettingsProvider>()
                               .setVideoFolder(newD.path);
                         }
-                      })
+                      }),
+                  Text(context.watch<SettingsProvider>().videoFolder.path),
                 ],
               ),
             ),
@@ -122,8 +126,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Thumbnail Folder  |  "),
-                  Text(context.watch<SettingsProvider>().thumbFolder.path),
+                  const SizedBox(width: 155, child: Text("Thumbnail Folder")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
                       onPressed: () {
@@ -136,7 +140,8 @@ class SettingsScreen extends StatelessWidget {
                               .read<SettingsProvider>()
                               .setThumbFolder(newD.path);
                         }
-                      })
+                      }),
+                  Text(context.watch<SettingsProvider>().thumbFolder.path),
                 ],
               ),
             ),
@@ -144,14 +149,16 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Play / Pause Hotkey  |  "),
-                  Text(context.watch<SettingsProvider>().playPauseKey.keyLabel),
+                  const SizedBox(
+                      width: 155, child: Text("Play / Pause Hotkey")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.keyboard_classic),
                       onPressed: () {
                         showHotkeyDialog(context, "Play / Pause",
                             context.read<SettingsProvider>().setPlayPauseKey);
-                      })
+                      }),
+                  Text(context.watch<SettingsProvider>().playPauseKey.keyLabel),
                 ],
               ),
             ),
@@ -159,11 +166,9 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Small Skip Back Hotkey  |  "),
-                  Text(context
-                      .watch<SettingsProvider>()
-                      .smallSkipBackKey
-                      .keyLabel),
+                  const SizedBox(
+                      width: 155, child: Text("Small Skip Back Hotkey")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.keyboard_classic),
                       onPressed: () {
@@ -173,7 +178,11 @@ class SettingsScreen extends StatelessWidget {
                             context
                                 .read<SettingsProvider>()
                                 .setSmallSkipBackKey);
-                      })
+                      }),
+                  Text(context
+                      .watch<SettingsProvider>()
+                      .smallSkipBackKey
+                      .keyLabel),
                 ],
               ),
             ),
@@ -181,11 +190,9 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Small Skip Ahead Hotkey  |  "),
-                  Text(context
-                      .watch<SettingsProvider>()
-                      .smallSkipAheadKey
-                      .keyLabel),
+                  const SizedBox(
+                      width: 155, child: Text("Small Skip Ahead Hotkey")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.keyboard_classic),
                       onPressed: () {
@@ -195,7 +202,11 @@ class SettingsScreen extends StatelessWidget {
                             context
                                 .read<SettingsProvider>()
                                 .setSmallSkipAheadKey);
-                      })
+                      }),
+                  Text(context
+                      .watch<SettingsProvider>()
+                      .smallSkipAheadKey
+                      .keyLabel),
                 ],
               ),
             ),
@@ -203,17 +214,19 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Big Skip Back Hotkey  |  "),
-                  Text(context
-                      .watch<SettingsProvider>()
-                      .bigSkipBackKey
-                      .keyLabel),
+                  const SizedBox(
+                      width: 155, child: Text("Big Skip Back Hotkey")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.keyboard_classic),
                       onPressed: () {
                         showHotkeyDialog(context, "Big Skip Back",
                             context.read<SettingsProvider>().setBigSkipBackKey);
-                      })
+                      }),
+                  Text(context
+                      .watch<SettingsProvider>()
+                      .bigSkipBackKey
+                      .keyLabel),
                 ],
               ),
             ),
@@ -221,11 +234,9 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Big Skip Ahead Hotkey  |  "),
-                  Text(context
-                      .watch<SettingsProvider>()
-                      .bigSkipAheadKey
-                      .keyLabel),
+                  const SizedBox(
+                      width: 155, child: Text("Big Skip Ahead Hotkey")),
+                  const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.keyboard_classic),
                       onPressed: () {
@@ -235,7 +246,11 @@ class SettingsScreen extends StatelessWidget {
                             context
                                 .read<SettingsProvider>()
                                 .setBigSkipAheadKey);
-                      })
+                      }),
+                  Text(context
+                      .watch<SettingsProvider>()
+                      .bigSkipAheadKey
+                      .keyLabel),
                 ],
               ),
             ),
@@ -243,7 +258,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Small Skip Amount  |  "),
+                  const SizedBox(width: 155, child: Text("Small Skip Amount")),
+                  const Text("  |  "),
                   SizedBox(
                     width: 50,
                     child: TextBox(
@@ -262,6 +278,10 @@ class SettingsScreen extends StatelessWidget {
                               .read<SettingsProvider>()
                               .setSmallSkipTime(int.parse(smallTimeTC.text));
                           smallSkipFocus.unfocus();
+                          context
+                              .read<NavigationProvider>()
+                              .mainAppFocus
+                              .requestFocus();
                         }
                       },
                     ),
@@ -274,7 +294,8 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Text("Big Skip Amount  |  "),
+                  const SizedBox(width: 155, child: Text("Big Skip Amount")),
+                  const Text("  |  "),
                   SizedBox(
                     width: 50,
                     child: TextBox(
@@ -293,6 +314,10 @@ class SettingsScreen extends StatelessWidget {
                               .read<SettingsProvider>()
                               .setBigSkipTime(int.parse(bigTimeTC.text));
                           bigSkipFocus.unfocus();
+                          context
+                              .read<NavigationProvider>()
+                              .mainAppFocus
+                              .requestFocus();
                         }
                       },
                     ),
