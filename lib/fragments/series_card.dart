@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
@@ -80,6 +81,8 @@ class _SeriesCardState extends State<SeriesCard> {
                 for (VideoData v in seriesVideos) {
                   context.read<PlaylistProvider>().queueVideo(context, v);
                 }
+                // Make sure random mode is off since it's a series
+                context.read<PlaylistProvider>().setRandomMode(false, context);
                 context
                     .read<NavigationProvider>()
                     .goToPlayback(context: context, autoStart: true);
@@ -130,7 +133,10 @@ class _SeriesCardState extends State<SeriesCard> {
                                             .read<PlaylistProvider>()
                                             .queueVideo(context, v);
                                       }
-
+                                      // Make sure random mode is off since it's a series
+                                      context
+                                          .read<PlaylistProvider>()
+                                          .setRandomMode(false, context);
                                       // Once it's on the playlist there should be some kind of
                                       //   visual indicator that it happened, either a toast or
                                       //   Maybe adding the playlist to the library view??

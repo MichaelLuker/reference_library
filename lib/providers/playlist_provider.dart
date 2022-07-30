@@ -16,22 +16,13 @@ class PlaylistProvider with ChangeNotifier {
   bool _randomMode = false;
   late Player _player;
   bool _debounce = false;
+  bool _eventRegistered = false;
   BuildContext? _context;
 
-  PlaylistProvider(BuildContext context) {
+  PlaylistProvider() {
     // Set an ID for the player, and set up a listener on the playback stream to detect
     //   when a video finishes playing
     _player = Player(id: 0);
-    _player.playbackStream.listen((event) {
-      if (event.isCompleted && !_debounce) {
-        _debounce = true;
-        // Debounce delay, so nextVideo isn't called 4 or 5 times on video end
-        Future.delayed(const Duration(milliseconds: 250)).then((_) {
-          _debounce = false;
-        });
-        nextVideo(context);
-      }
-    });
   }
 
   // Removes a video from the queue. If the currently playing video is removed then
@@ -67,6 +58,23 @@ class PlaylistProvider with ChangeNotifier {
       _loadVideo(context, autoStart: false);
     }
     notifyListeners();
+  }
+
+  void registerNextVideoEvent(BuildContext context) {
+    // If the play end event isn't registered yet, do it now
+    if (!_eventRegistered) {
+      _player.playbackStream.listen((event) {
+        if (event.isCompleted && !_debounce) {
+          _debounce = true;
+          // Debounce delay, so nextVideo isn't called 4 or 5 times on video end
+          Future.delayed(const Duration(milliseconds: 250)).then((_) {
+            _debounce = false;
+          });
+          nextVideo(context);
+        }
+      });
+      _eventRegistered = true;
+    }
   }
 
   // Tells the player to actually load the current video, and auto play it if

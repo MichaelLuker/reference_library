@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/providers/settings_provider.dart';
 
 // Provides some extra navigation hooks to the app for page transitions
 class NavigationProvider extends ChangeNotifier {
@@ -50,6 +51,12 @@ class NavigationProvider extends ChangeNotifier {
     if (_index == 3) {
       _showMiniPlayer =
           context.read<PlaylistProvider>().player.playback.isPlaying;
+      // If a video is playing and Settings say mini play should be disable then pause instead
+      if (_showMiniPlayer &&
+          !context.read<SettingsProvider>().enableMiniPlayer) {
+        context.read<PlaylistProvider>().pauseVideo();
+        _showMiniPlayer = false;
+      }
     }
     _index = i;
     if (_index == 3) {

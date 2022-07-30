@@ -55,7 +55,7 @@ class ReferenceLibrary extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
           ChangeNotifierProvider(create: (_) => DataProvider()),
-          ChangeNotifierProvider(create: (_) => PlaylistProvider(context)),
+          ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ],
         // Fluent main app
@@ -93,6 +93,7 @@ class _AppState extends State<App> with WindowListener {
         context.watch<SettingsProvider>().bigSkipAheadKey;
     LogicalKeyboardKey bigSkipBack =
         context.watch<SettingsProvider>().bigSkipBackKey;
+    context.read<PlaylistProvider>().registerNextVideoEvent(context);
     return RawKeyboardListener(
       focusNode: context.watch<NavigationProvider>().mainAppFocus,
       autofocus: true,
