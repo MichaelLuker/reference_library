@@ -31,6 +31,7 @@ class DataProvider with ChangeNotifier {
     if (fullInit) {
       // Use temp directory to save app settings
       Directory value = await getTemporaryDirectory();
+      log("Settings file: ${value.path}/$_settingsFileName");
       jcrud localSettings = jcrud(value.path);
       Map<String, dynamic> savedSettings =
           localSettings.read(_settingsFileName);
@@ -65,7 +66,7 @@ class DataProvider with ChangeNotifier {
     if (temp.isNotEmpty) {
       for (String key in temp.keys) {
         // Skip over the Tags and Series files
-        if (key == "Tags" || key == "Series") {
+        if (key == "Tags" || key == "Series" || key == ".DS_Store") {
           continue;
         }
         _allVideos[key] = VideoData.fromMap(temp[key], thumbFolder);

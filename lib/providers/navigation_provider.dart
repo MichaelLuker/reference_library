@@ -32,7 +32,9 @@ class NavigationProvider extends ChangeNotifier {
     // If a video is not playing then go to the next video? I'm a little confused
     //   why I added this? But I'll leave it alone for now
     if (!context.read<PlaylistProvider>().player.playback.isPlaying) {
-      context.read<PlaylistProvider>().nextVideo(autoStart: autoStart);
+      // Because I'm too lazy to add an option to tell it to play the current video...
+      context.read<PlaylistProvider>().nextVideo(context, autoStart: autoStart);
+      context.read<PlaylistProvider>().prevVideo(context);
     }
   }
 

@@ -6,29 +6,48 @@ import 'package:reference_library/providers/playlist_provider.dart';
 import '../providers/data_provider.dart';
 
 // Widget to display a video thumbnail and title (library, playlist, search screens)
-class VideoCard extends StatefulWidget {
-  const VideoCard(this.data, {Key? key}) : super(key: key);
-  final VideoData data;
+class SeriesCard extends StatefulWidget {
+  const SeriesCard(this.seriesTitle, {Key? key}) : super(key: key);
+  final String seriesTitle;
   @override
   // ignore: no_logic_in_create_state
-  State<VideoCard> createState() => _VideoCardState(data);
+  State<SeriesCard> createState() => _SeriesCardState(seriesTitle);
 }
 
-class _VideoCardState extends State<VideoCard> {
-  _VideoCardState(this.data);
-  VideoData data;
+class _SeriesCardState extends State<SeriesCard> {
+  _SeriesCardState(this.seriesTitle);
+  String seriesTitle;
   Color backgroundcolor = ThemeData.dark().cardColor;
   bool thumbnailExists = false;
+  String thumbnailPath = "";
+  bool init = false;
+  List<VideoData> seriesVideos = [];
 
   @override
   Widget build(BuildContext context) {
-    // If the thumbnail is marked as non-existant do another check here
-    // if it DOES exist we don't need to be doing the check on every build
-    if (!thumbnailExists) {
+    // Initialize by getting the video data for all videos associated with the series
+    if (!init) {
+      Map<String, VideoData> allVideos = context.read<DataProvider>().videos;
+      for (String vidID in allVideos.keys) {
+        if (allVideos[vidID]!.series &&
+            allVideos[vidID]!.seriesTitle == seriesTitle) {
+          seriesVideos.add(allVideos[vidID]!);
+        }
+      }
+      // Make sure it's sorted based on index
+      seriesVideos.sort(((a, b) => a.seriesIndex.compareTo(b.seriesIndex)));
+      // Grab the thumbnail of the first video to use
+      if (!thumbnailExists) {
+        setState(() {
+          thumbnailExists = File(seriesVideos.first.thumbnailPath).existsSync();
+          thumbnailPath = seriesVideos.first.thumbnailPath;
+        });
+      }
       setState(() {
-        thumbnailExists = File(data.thumbnailPath).existsSync();
+        init = true;
       });
     }
+
     // Mouse region to detect if the cursor is entering or leaving the card to highlight it
     return MouseRegion(
         onEnter: (_) {
@@ -50,15 +69,17 @@ class _VideoCardState extends State<VideoCard> {
               verticalOffset: 25,
               showDuration: Duration(milliseconds: 500),
               waitDuration: Duration(milliseconds: 500)),
-          message: data.title,
+          message: seriesTitle,
           // GestureDetector to get left and right click events on the card itself
           child: GestureDetector(
               onSecondaryTap: () {
-                // Right click to show video edit screen
+                // Right click to show series edit screen
               },
               onTap: () {
-                // Left click the card to play the video immediately
-                context.read<PlaylistProvider>().queueVideo(context, data);
+                // Left click the card to queue series and play immediately
+                for (VideoData v in seriesVideos) {
+                  context.read<PlaylistProvider>().queueVideo(context, v);
+                }
                 context
                     .read<NavigationProvider>()
                     .goToPlayback(context: context, autoStart: true);
@@ -72,7 +93,7 @@ class _VideoCardState extends State<VideoCard> {
                       children: [
                         // Thumbnail at the top
                         thumbnailExists
-                            ? Image.file(File(data.thumbnailPath))
+                            ? Image.file(File(thumbnailPath))
                             : const Text("Thumbnail Pending"),
                         // Then the title and add to playlist button below that
                         Flexible(
@@ -84,7 +105,7 @@ class _VideoCardState extends State<VideoCard> {
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 8, 0, 0),
                                   child: Text(
-                                    data.title,
+                                    seriesTitle,
                                     style: const TextStyle(
                                         fontSize: 12,
                                         overflow: TextOverflow.fade),
@@ -104,9 +125,11 @@ class _VideoCardState extends State<VideoCard> {
                                         FluentIcons.add_to_shopping_list,
                                         size: 18),
                                     onPressed: () {
-                                      context
-                                          .read<PlaylistProvider>()
-                                          .queueVideo(context, data);
+                                      for (VideoData v in seriesVideos) {
+                                        context
+                                            .read<PlaylistProvider>()
+                                            .queueVideo(context, v);
+                                      }
 
                                       // Once it's on the playlist there should be some kind of
                                       //   visual indicator that it happened, either a toast or

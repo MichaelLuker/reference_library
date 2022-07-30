@@ -44,7 +44,9 @@ class jcrud {
     for (FileSystemEntity f in Directory(_base).listSync().toList()) {
       if (f is File) {
         String fileName = basename(f.path);
-        res[fileName] = read(fileName);
+        if (fileName != ".DS_Store") {
+          res[fileName] = read(fileName);
+        }
       }
     }
     return res;

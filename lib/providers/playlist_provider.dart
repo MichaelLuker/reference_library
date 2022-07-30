@@ -6,6 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:dart_vlc/dart_vlc.dart';
+import 'package:reference_library/providers/settings_provider.dart';
 
 // Provides all the video player functions and state to the app
 class PlaylistProvider with ChangeNotifier {
@@ -17,7 +18,7 @@ class PlaylistProvider with ChangeNotifier {
   bool _debounce = false;
   BuildContext? _context;
 
-  PlaylistProvider() {
+  PlaylistProvider(BuildContext context) {
     // Set an ID for the player, and set up a listener on the playback stream to detect
     //   when a video finishes playing
     _player = Player(id: 0);
@@ -28,14 +29,14 @@ class PlaylistProvider with ChangeNotifier {
         Future.delayed(const Duration(milliseconds: 250)).then((_) {
           _debounce = false;
         });
-        nextVideo();
+        nextVideo(context);
       }
     });
   }
 
   // Removes a video from the queue. If the currently playing video is removed then
   //   go to the next video, if that was the only video in the list stop all play back
-  void dequeueVideo(VideoData d) {
+  void dequeueVideo(BuildContext context, VideoData d) {
     if (_currentVideo == d) {
       if (_playList.length == 1) {
         _player.stop();
@@ -44,7 +45,7 @@ class PlaylistProvider with ChangeNotifier {
         notifyListeners();
         return;
       } else {
-        nextVideo();
+        nextVideo(context);
       }
     }
     if (_playList.contains(d)) {
@@ -55,7 +56,7 @@ class PlaylistProvider with ChangeNotifier {
 
   // Adds a video to the playlist queue, if there's no current video set (ie. the
   //    playlist was empty) set the current video to this first video in the list
-  void queueVideo(VideoData d) {
+  void queueVideo(BuildContext context, VideoData d) {
     if (!_playList.contains(d)) {
       _playList.add(d);
     }
@@ -63,17 +64,19 @@ class PlaylistProvider with ChangeNotifier {
     if (_currentVideo == null) {
       _currentVideo = d;
       _playListIndex = 0;
-      _loadVideo(autoStart: false);
+      _loadVideo(context, autoStart: false);
     }
     notifyListeners();
   }
 
   // Tells the player to actually load the current video, and auto play it if
   //   that's selected. Also resets the debounce variable.
-  void _loadVideo({bool autoStart = true}) {
+  void _loadVideo(BuildContext context, {bool autoStart = true}) {
     if (_currentVideo != null) {
-      _player.open(Media.file(File(_currentVideo!.localPath)),
-          autoStart: autoStart);
+      String fullPath =
+          "${context.read<SettingsProvider>().videoFolder.path}/${_currentVideo!.localPath}";
+      log("Loading: $fullPath");
+      _player.open(Media.file(File(fullPath)), autoStart: autoStart);
     }
     _debounce = false;
   }
@@ -88,7 +91,7 @@ class PlaylistProvider with ChangeNotifier {
   }
 
   // Plays the video that is previous to the current spot of the playlist
-  void prevVideo() {
+  void prevVideo(BuildContext context) {
     if (_playListIndex == 0) {
       if (_playList.isNotEmpty) {
         _playListIndex = _playList.length - 1;
@@ -97,12 +100,12 @@ class PlaylistProvider with ChangeNotifier {
       _playListIndex--;
     }
     _currentVideo = _playList[_playListIndex];
-    _loadVideo();
+    _loadVideo(context);
     notifyListeners();
   }
 
   // Updates things to play the next video on the playlist
-  void nextVideo({bool autoStart = true}) {
+  void nextVideo(BuildContext context, {bool autoStart = true}) {
     // If randome mode is on randomly pick a video from the library and if it's
     //   not on the playlist add it, then play it
     if (_randomMode) {
@@ -114,7 +117,7 @@ class PlaylistProvider with ChangeNotifier {
         _playListIndex = _playList.indexOf(_currentVideo!);
       }
 
-      _loadVideo(autoStart: autoStart);
+      _loadVideo(context, autoStart: autoStart);
       notifyListeners();
       return;
     }
@@ -130,7 +133,7 @@ class PlaylistProvider with ChangeNotifier {
       _playListIndex++;
     }
     _currentVideo = _playList[_playListIndex];
-    _loadVideo(autoStart: autoStart);
+    _loadVideo(context, autoStart: autoStart);
     notifyListeners();
   }
 

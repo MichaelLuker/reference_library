@@ -27,7 +27,7 @@ void main() async {
       TitleBarStyle.hidden,
       windowButtonVisibility: false,
     );
-    //await windowManager.setSize(const Size(1400, 800));
+    await windowManager.setSize(const Size(1024, 720));
     //await windowManager.maximize();
     await windowManager.setMinimumSize(const Size(1024, 720));
     //await windowManager.center();
@@ -55,7 +55,7 @@ class ReferenceLibrary extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
           ChangeNotifierProvider(create: (_) => DataProvider()),
-          ChangeNotifierProvider(create: (_) => PlaylistProvider()),
+          ChangeNotifierProvider(create: (_) => PlaylistProvider(context)),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ],
         // Fluent main app
@@ -215,9 +215,9 @@ class _AppState extends State<App> with WindowListener {
                   //   list above in the navigaion bar
                   children: [
                     LibraryScreen(),
-                    const SeriesScreen(),
-                    const SearchScreen(),
-                    const PlaybackScreen(),
+                    SeriesScreen(),
+                    SearchScreen(),
+                    PlaybackScreen(),
                     SettingsScreen()
                   ]),
               // Check to see if the mini player should be hovering over everything

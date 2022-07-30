@@ -83,14 +83,14 @@ class PlaybackScreen extends StatelessWidget {
                             child: IconButton(
                           icon: const Icon(FluentIcons.previous),
                           onPressed: () {
-                            context.read<PlaylistProvider>().prevVideo();
+                            context.read<PlaylistProvider>().prevVideo(context);
                           },
                         )),
                         Expanded(
                             child: IconButton(
                           icon: const Icon(FluentIcons.next),
                           onPressed: () {
-                            context.read<PlaylistProvider>().nextVideo();
+                            context.read<PlaylistProvider>().nextVideo(context);
                           },
                         )),
                       ],
@@ -219,21 +219,24 @@ class PlaylistItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: playingVideo
-          ? Color.fromARGB(255, 40, 109, 228)
-          : material.ThemeData.dark().cardColor,
-      shape: const Border.symmetric(horizontal: BorderSide()),
-      title: Text(
-        d.title,
-        style: const TextStyle(fontSize: 12),
-        overflow: TextOverflow.ellipsis,
+    return Tooltip(
+      message: d.title,
+      child: ListTile(
+        tileColor: playingVideo
+            ? Color.fromARGB(255, 40, 109, 228)
+            : material.ThemeData.dark().cardColor,
+        shape: const Border.symmetric(horizontal: BorderSide()),
+        title: Text(
+          d.title,
+          style: const TextStyle(fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: IconButton(
+            onPressed: () {
+              context.read<PlaylistProvider>().dequeueVideo(context, d);
+            },
+            icon: const Icon(FluentIcons.delete)),
       ),
-      trailing: IconButton(
-          onPressed: () {
-            context.read<PlaylistProvider>().dequeueVideo(d);
-          },
-          icon: const Icon(FluentIcons.delete)),
     );
   }
 }
