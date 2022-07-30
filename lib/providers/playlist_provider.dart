@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -74,6 +73,15 @@ class PlaylistProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void moveItem(int oldPos, int newPos) {
+    if (currentVideo == _playList[oldPos]) {
+      _playListIndex = newPos;
+    }
+    VideoData d = _playList.removeAt(oldPos);
+    _playList.insert(newPos, d);
+    notifyListeners();
+  }
+
   void registerNextVideoEvent(BuildContext context) {
     // If the play end event isn't registered yet, do it now
     if (!_eventRegistered) {
@@ -97,7 +105,6 @@ class PlaylistProvider with ChangeNotifier {
     if (_currentVideo != null) {
       String fullPath =
           "${context.read<SettingsProvider>().videoFolder.path}/${_currentVideo!.localPath}";
-      log("Loading: $fullPath");
       _player.open(Media.file(File(fullPath)), autoStart: autoStart);
     }
     _debounce = false;
@@ -169,6 +176,10 @@ class PlaylistProvider with ChangeNotifier {
       _currentVideo = v;
       _playListIndex = _playList.indexOf(v);
       _loadVideo(context);
+      // Modify the playlist quickly to reset the stateful widgets??
+      VideoData end = _playList.removeLast();
+      notifyListeners();
+      _playList.add(end);
     }
     notifyListeners();
   }

@@ -55,6 +55,13 @@ class PlaybackScreen extends StatelessWidget {
                           .setRandomMode(value, context);
                     },
                   ),
+                  const Divider(
+                    style: DividerThemeData(
+                      decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 163, 163, 163)),
+                      thickness: 1,
+                    ),
+                  ),
                   Expanded(
                       flex: 11,
                       child: SizedBox(
