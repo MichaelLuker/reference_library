@@ -60,6 +60,20 @@ class PlaylistProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Clear / reset the whole playlist
+  void clearPlaylist() {
+    // Make sure any currently playing video stops
+    _player.stop();
+    // Reset variables
+    _currentVideo = null;
+    _playListIndex = 0;
+    // Empty the playlist
+    while (_playList.isNotEmpty) {
+      _playList.removeLast();
+    }
+    notifyListeners();
+  }
+
   void registerNextVideoEvent(BuildContext context) {
     // If the play end event isn't registered yet, do it now
     if (!_eventRegistered) {
@@ -148,6 +162,15 @@ class PlaylistProvider with ChangeNotifier {
   // Seeks video to the sent timestampe in the form of a duration from 00:00:00
   void jumpTo(Duration dur) {
     _player.seek(dur);
+  }
+
+  void jumpToVideo(BuildContext context, VideoData v) {
+    if (_playList.contains(v)) {
+      _currentVideo = v;
+      _playListIndex = _playList.indexOf(v);
+      _loadVideo(context);
+    }
+    notifyListeners();
   }
 
   // Functions for controlling random play back

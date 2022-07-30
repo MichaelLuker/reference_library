@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:dart_vlc/dart_vlc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';

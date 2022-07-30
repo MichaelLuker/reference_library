@@ -21,7 +21,7 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:reference_library/fragments/play_screen.dart';
+import 'package:reference_library/fragments/playlist_widget.dart';
 import 'package:reference_library/fragments/series_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
@@ -63,7 +63,7 @@ class SeriesScreen extends StatelessWidget {
         children: [
           (context.watch<PlaylistProvider>().playList.isNotEmpty &&
                   context.watch<NavigationProvider>().index == 1)
-              ? SizedBox(width: 250, child: PlayListWidget())
+              ? const SizedBox(width: 250, child: PlayListWidget())
               : Container(),
           SizedBox(
             width: (context.watch<PlaylistProvider>().playList.isNotEmpty)

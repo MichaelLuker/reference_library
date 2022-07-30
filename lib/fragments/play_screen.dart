@@ -1,8 +1,8 @@
-import 'dart:developer';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
+import 'package:reference_library/fragments/playlist_widget.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 
@@ -24,7 +24,6 @@ class PlaybackScreen extends StatelessWidget {
     if (data == null) {
       return const Center(child: Text("No videos selected yet..."));
     }
-    List<VideoData> playList = context.watch<PlaylistProvider>().playList;
     return ScaffoldPage(
       header: Row(children: [
         Expanded(child: Center(child: Text(data.title))),
@@ -74,7 +73,8 @@ class PlaybackScreen extends StatelessWidget {
                                   )))
                         ],
                       ))),
-                  Expanded(flex: 11, child: SizedBox(child: PlayListWidget())),
+                  const Expanded(
+                      flex: 11, child: SizedBox(child: PlayListWidget())),
                   SizedBox(
                     height: 28,
                     child: Row(
@@ -102,36 +102,6 @@ class PlaybackScreen extends StatelessWidget {
           ],
         )),
       ),
-    );
-  }
-}
-
-class PlayListWidget extends StatelessWidget {
-  List<Widget> buildPlaylist(BuildContext context, List<VideoData> pl) {
-    List<Widget> r = [];
-    for (VideoData d in pl) {
-      r.add(
-          PlaylistItem(d, d == context.read<PlaylistProvider>().currentVideo));
-    }
-    return r;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<VideoData> pl = context.watch<PlaylistProvider>().playList;
-    return Column(
-      children: [
-        const Text(
-          "Playlist",
-          style: TextStyle(fontSize: 18),
-        ),
-        Expanded(
-            child: SingleChildScrollView(
-                controller: ScrollController(),
-                child: Wrap(
-                  children: buildPlaylist(context, pl),
-                )))
-      ],
     );
   }
 }
@@ -188,7 +158,7 @@ class _TimestampItemState extends State<TimestampItem> {
                       backgroundcolor = ThemeData.dark().cardColor;
                       return;
                     }
-                    backgroundcolor = Color.fromARGB(255, 40, 109, 228)
+                    backgroundcolor = const Color.fromARGB(255, 40, 109, 228)
                         .withAlpha(alpha - (s * 10));
                   });
                 });
@@ -207,35 +177,6 @@ class _TimestampItemState extends State<TimestampItem> {
                 onPressed: () {}, icon: const Icon(FluentIcons.collapse_menu)),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class PlaylistItem extends StatelessWidget {
-  const PlaylistItem(this.d, this.playingVideo, {Key? key}) : super(key: key);
-  final VideoData d;
-  final bool playingVideo;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: d.title,
-      child: ListTile(
-        tileColor: playingVideo
-            ? Color.fromARGB(255, 40, 109, 228)
-            : material.ThemeData.dark().cardColor,
-        shape: const Border.symmetric(horizontal: BorderSide()),
-        title: Text(
-          d.title,
-          style: const TextStyle(fontSize: 12),
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-            onPressed: () {
-              context.read<PlaylistProvider>().dequeueVideo(context, d);
-            },
-            icon: const Icon(FluentIcons.delete)),
       ),
     );
   }

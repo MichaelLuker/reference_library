@@ -217,8 +217,8 @@ class _AppState extends State<App> with WindowListener {
                   children: [
                     LibraryScreen(),
                     SeriesScreen(),
-                    SearchScreen(),
-                    PlaybackScreen(),
+                    const SearchScreen(),
+                    const PlaybackScreen(),
                     SettingsScreen()
                   ]),
               // Check to see if the mini player should be hovering over everything

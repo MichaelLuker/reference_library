@@ -7,7 +7,7 @@ import 'package:reference_library/providers/settings_provider.dart';
 class NavigationProvider extends ChangeNotifier {
   int _index = 0;
   bool _showMiniPlayer = false;
-  FocusNode _mainAppFocus = FocusNode();
+  final FocusNode _mainAppFocus = FocusNode();
 
   // Functions for jumping to specific screens
   void goToLibrary() {
