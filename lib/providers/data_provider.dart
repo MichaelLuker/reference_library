@@ -26,17 +26,21 @@ class DataProvider with ChangeNotifier {
 
   // Go and grab all the saved video data (if there is any)
   void initValues({bool fullInit = true}) async {
+    String dataFolder = "";
+    String thumbFolder = "";
     if (fullInit) {
       // Use temp directory to save app settings
       Directory value = await getTemporaryDirectory();
       jcrud localSettings = jcrud(value.path);
       Map<String, dynamic> savedSettings =
           localSettings.read(_settingsFileName);
-      String dataFolder = "";
+
       if (savedSettings.isEmpty) {
-        dataFolder = "${value.path}\\.localstore";
+        dataFolder = "${value.path}/.localstore";
+        thumbFolder = "${value.path}/.localstore/thumbnails";
       } else {
         dataFolder = savedSettings["dataFolder"];
+        thumbFolder = savedSettings["thumbFolder"];
       }
       // Read from the set data folder
       _localData = jcrud(dataFolder);
@@ -64,7 +68,7 @@ class DataProvider with ChangeNotifier {
         if (key == "Tags" || key == "Series") {
           continue;
         }
-        _allVideos[key] = VideoData.fromMap(temp[key]);
+        _allVideos[key] = VideoData.fromMap(temp[key], thumbFolder);
       }
     }
     // Sort the tags and series alphabetically
@@ -301,6 +305,7 @@ class VideoData {
   String url = "";
   List<TimestampData> timestamps = [];
   List<String> tags = [];
+  String thumbDir = "";
 
   // Constructor
   VideoData(
@@ -313,9 +318,11 @@ class VideoData {
       this.complete,
       this.url,
       this.timestamps,
-      this.tags) {
+      this.tags,
+      this.thumbDir) {
     // Check to see if a thumbnail exists, if it doesn't then download and save it
-    File possibleThumbnail = File("D:/Video Library/.thumbnails/$videoId.jpg");
+
+    File possibleThumbnail = File("$thumbDir/$videoId.jpg");
     if (!possibleThumbnail.existsSync()) {
       if (url.contains("youtube")) {
         String tmbUrl =
@@ -334,7 +341,7 @@ class VideoData {
   // Clone a video object
   VideoData clone() {
     return VideoData(videoId, title, localPath, series, seriesTitle,
-        seriesIndex, complete, url, timestamps, tags);
+        seriesIndex, complete, url, timestamps, tags, thumbDir);
   }
 
   // Dump to json object
@@ -356,7 +363,7 @@ class VideoData {
   }
 
   // Create from json object
-  factory VideoData.fromMap(Map<String, dynamic> map) {
+  factory VideoData.fromMap(Map<String, dynamic> map, String thumbDir) {
     List<TimestampData> ts = [];
     if (!map['timestamps'].isEmpty) {
       for (Map<String, dynamic> d in map['timestamps']) {
@@ -375,6 +382,7 @@ class VideoData {
         map['complete'],
         map['url'],
         ts,
-        List<String>.from(map['tags'].map((e) => e.toString())));
+        List<String>.from(map['tags'].map((e) => e.toString())),
+        thumbDir);
   }
 }

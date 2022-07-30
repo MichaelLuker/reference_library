@@ -85,13 +85,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.2"
-  filepicker_windows:
+  file_picker:
     dependency: "direct main"
     description:
-      name: filepicker_windows
+      name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "4.6.1"
   fluent_ui:
     dependency: "direct main"
     description:
@@ -130,6 +130,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.2"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter

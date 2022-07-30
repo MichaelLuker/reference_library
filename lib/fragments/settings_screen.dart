@@ -1,6 +1,7 @@
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously
 
-import 'package:filepicker_windows/filepicker_windows.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -84,15 +85,15 @@ class SettingsScreen extends StatelessWidget {
                   const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
-                      onPressed: () {
-                        // WindowsKnownFolder.ComputerFolder
-                        DirectoryPicker d = DirectoryPicker()
-                          ..title = "Select Data Folder";
-                        Directory? newD = d.getDirectory();
+                      onPressed: () async {
+                        String? newD = await FilePicker.platform
+                            .getDirectoryPath(
+                                dialogTitle: "Select Data Folder");
+
                         if (newD != null) {
                           context
                               .read<SettingsProvider>()
-                              .setDataFolder(context, newD.path);
+                              .setDataFolder(context, newD);
                         }
                       }),
                   Text(context.watch<SettingsProvider>().dataFolder.path),
@@ -107,15 +108,13 @@ class SettingsScreen extends StatelessWidget {
                   const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
-                      onPressed: () {
-                        // WindowsKnownFolder.ComputerFolder
-                        DirectoryPicker d = DirectoryPicker()
-                          ..title = "Select Video Folder";
-                        Directory? newD = d.getDirectory();
+                      onPressed: () async {
+                        String? newD = await FilePicker.platform
+                            .getDirectoryPath(
+                                dialogTitle: "Select Video Folder");
+
                         if (newD != null) {
-                          context
-                              .read<SettingsProvider>()
-                              .setVideoFolder(newD.path);
+                          context.read<SettingsProvider>().setVideoFolder(newD);
                         }
                       }),
                   Text(context.watch<SettingsProvider>().videoFolder.path),
@@ -130,15 +129,12 @@ class SettingsScreen extends StatelessWidget {
                   const Text("  |  "),
                   IconButton(
                       icon: const Icon(FluentIcons.open_folder_horizontal),
-                      onPressed: () {
-                        // WindowsKnownFolder.ComputerFolder
-                        DirectoryPicker d = DirectoryPicker()
-                          ..title = "Select Thumbnail Folder";
-                        Directory? newD = d.getDirectory();
+                      onPressed: () async {
+                        String? newD = await FilePicker.platform
+                            .getDirectoryPath(
+                                dialogTitle: "Select Thumbnail Folder");
                         if (newD != null) {
-                          context
-                              .read<SettingsProvider>()
-                              .setThumbFolder(newD.path);
+                          context.read<SettingsProvider>().setThumbFolder(newD);
                         }
                       }),
                   Text(context.watch<SettingsProvider>().thumbFolder.path),

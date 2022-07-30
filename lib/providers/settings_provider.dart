@@ -60,9 +60,9 @@ class SettingsProvider with ChangeNotifier {
       settingsFile.create(_settingsFileName);
       // Set default options
       _enableMiniPlayer = true;
-      _videoFolder = Directory("${value.path}\\videos");
-      _dataFolder = Directory("${value.path}\\.localstore");
-      _thumbFolder = Directory("${value.path}\\.localstore\\.thumbnails");
+      _videoFolder = Directory("${value.path}/videos");
+      _dataFolder = Directory("${value.path}/.localstore");
+      _thumbFolder = Directory("${value.path}/.localstore/thumbnails");
       _videoFolder.create();
       _dataFolder.create();
       _thumbFolder.create();
