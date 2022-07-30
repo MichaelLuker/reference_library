@@ -5,67 +5,67 @@ import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 
 class PlayListWidget extends StatefulWidget {
-  const PlayListWidget({Key? key}) : super(key: key);
+  PlayListWidget({Key? key}) : super(key: key);
 
   @override
   State<PlayListWidget> createState() => _PlayListWidgetState();
+  Map<String, Widget> playlistItems = {};
+  Map<String, Color> backgroundColors = {};
 }
 
 class _PlayListWidgetState extends State<PlayListWidget> {
-  Map<String, Widget> playlistItems = {};
-  Map<String, Color> backgroundColors = {};
-
   List<Widget> buildPlaylist(BuildContext context, List<VideoData> pl) {
     setState(() {
       VideoData current = context.read<PlaylistProvider>().currentVideo!;
 
       for (VideoData d in pl) {
-        if (!backgroundColors.containsKey(d.videoId)) {
+        if (!widget.backgroundColors.containsKey(d.videoId)) {
           if (d == current) {
-            backgroundColors[d.videoId] =
+            widget.backgroundColors[d.videoId] =
                 const Color.fromARGB(255, 40, 109, 228);
           } else {
-            backgroundColors[d.videoId] = ThemeData.dark().cardColor;
+            widget.backgroundColors[d.videoId] = ThemeData.dark().cardColor;
           }
         }
 
-        playlistItems.remove(d.videoId);
-        playlistItems[d.videoId] = MouseRegion(
+        widget.playlistItems.remove(d.videoId);
+        widget.playlistItems[d.videoId] = MouseRegion(
           key: Key(d.videoId),
           onEnter: (_) {
             setState(() {
               if (d == current) {
-                backgroundColors[d.videoId] =
+                widget.backgroundColors[d.videoId] =
                     const Color.fromARGB(255, 84, 145, 250);
               } else {
-                backgroundColors[d.videoId] = ThemeData.dark().shadowColor;
+                widget.backgroundColors[d.videoId] =
+                    ThemeData.dark().shadowColor;
               }
             });
           },
           onExit: (_) {
             setState(() {
               if (d == current) {
-                backgroundColors[d.videoId] =
+                widget.backgroundColors[d.videoId] =
                     const Color.fromARGB(255, 40, 109, 228);
               } else {
-                backgroundColors[d.videoId] = ThemeData.dark().cardColor;
+                widget.backgroundColors[d.videoId] = ThemeData.dark().cardColor;
               }
             });
           },
           child: GestureDetector(
             onTap: () {
-              backgroundColors[context
+              widget.backgroundColors[context
                   .read<PlaylistProvider>()
                   .currentVideo!
                   .videoId] = ThemeData.dark().cardColor;
-              backgroundColors[d.videoId] =
+              widget.backgroundColors[d.videoId] =
                   const Color.fromARGB(255, 40, 109, 228);
               context.read<PlaylistProvider>().jumpToVideo(context, d);
               context.read<NavigationProvider>().goToPlayback(context: context);
             },
             child: PlaylistItem(
               d,
-              backgroundColors[d.videoId]!,
+              widget.backgroundColors[d.videoId]!,
               //  false,
             ),
           ),
@@ -73,7 +73,7 @@ class _PlayListWidgetState extends State<PlayListWidget> {
       }
     });
 
-    return playlistItems.values.toList();
+    return widget.playlistItems.values.toList();
   }
 
   @override

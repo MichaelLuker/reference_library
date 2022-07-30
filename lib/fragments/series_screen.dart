@@ -63,7 +63,7 @@ class SeriesScreen extends StatelessWidget {
         children: [
           (context.watch<PlaylistProvider>().playList.isNotEmpty &&
                   context.watch<NavigationProvider>().index == 1)
-              ? const SizedBox(width: 250, child: PlayListWidget())
+              ? SizedBox(width: 250, child: PlayListWidget())
               : Container(),
           SizedBox(
             width: (context.watch<PlaylistProvider>().playList.isNotEmpty)

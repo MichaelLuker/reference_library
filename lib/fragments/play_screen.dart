@@ -80,8 +80,7 @@ class PlaybackScreen extends StatelessWidget {
                                   )))
                         ],
                       ))),
-                  const Expanded(
-                      flex: 11, child: SizedBox(child: PlayListWidget())),
+                  Expanded(flex: 11, child: SizedBox(child: PlayListWidget())),
                   SizedBox(
                     height: 28,
                     child: Row(
