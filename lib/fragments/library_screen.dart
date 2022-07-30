@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reference_library/fragments/play_screen.dart';
 import 'package:reference_library/fragments/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/navigation_provider.dart';
 
 import 'package:reference_library/providers/playlist_provider.dart';
 
@@ -43,7 +44,8 @@ class LibraryScreen extends StatelessWidget {
     return ScaffoldPage(
       content: Row(
         children: [
-          (context.watch<PlaylistProvider>().playList.isNotEmpty)
+          (context.watch<PlaylistProvider>().playList.isNotEmpty &&
+                  context.watch<NavigationProvider>().index == 0)
               ? SizedBox(width: 250, child: PlayListWidget())
               : Container(),
           SizedBox(
