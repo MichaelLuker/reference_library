@@ -188,7 +188,8 @@ class _TimestampItemState extends State<TimestampItem> {
                       backgroundcolor = ThemeData.dark().cardColor;
                       return;
                     }
-                    backgroundcolor = Colors.orange.withAlpha(alpha - (s * 10));
+                    backgroundcolor = Color.fromARGB(255, 40, 109, 228)
+                        .withAlpha(alpha - (s * 10));
                   });
                 });
               }
