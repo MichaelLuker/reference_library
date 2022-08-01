@@ -112,78 +112,34 @@ class PlaybackScreen extends StatelessWidget {
   }
 }
 
-class TimestampItem extends StatefulWidget {
+class TimestampItem extends StatelessWidget {
   const TimestampItem(this.d, {Key? key}) : super(key: key);
   final TimestampData d;
 
   @override
-  // ignore: no_logic_in_create_state
-  State<TimestampItem> createState() => _TimestampItemState(d);
-}
-
-class _TimestampItemState extends State<TimestampItem> {
-  _TimestampItemState(this.d);
-  final TimestampData d;
-  bool selected = false;
-  Color backgroundcolor = ThemeData.dark().cardColor;
-  @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: d.topic,
-      displayHorizontally: true,
-      useMousePosition: true,
-      style: const TooltipThemeData(
-          showDuration: Duration(milliseconds: 500),
-          waitDuration: Duration(milliseconds: 500)),
-      child: MouseRegion(
-        onEnter: (_) {
-          if (!selected) {
-            setState(() {
-              backgroundcolor = ThemeData.dark().shadowColor;
-            });
-          }
-        },
-        onExit: (_) {
-          if (!selected) {
-            setState(() {
-              backgroundcolor = ThemeData.dark().cardColor;
-            });
-          }
-        },
-        child: GestureDetector(
-          onTap: () {
-            context.read<PlaylistProvider>().jumpTo(d.timestamp);
-            setState(() {
-              selected = true;
-              int alpha = 150;
-              for (int s = 1; s <= 15; s++) {
-                Future.delayed(Duration(milliseconds: 100 * s)).then((_) {
-                  setState(() {
-                    if ((s * 10) == 150) {
-                      selected = false;
-                      backgroundcolor = ThemeData.dark().cardColor;
-                      return;
-                    }
-                    backgroundcolor = const Color.fromARGB(255, 40, 109, 228)
-                        .withAlpha(alpha - (s * 10));
-                  });
-                });
-              }
-            });
-          },
+        message: d.topic,
+        displayHorizontally: true,
+        useMousePosition: true,
+        style: const TooltipThemeData(
+            showDuration: Duration(milliseconds: 500),
+            waitDuration: Duration(milliseconds: 500)),
+        child: Button(
+          style: ButtonStyle(
+              padding: ButtonState.all(material.EdgeInsets.zero),
+              shape: ButtonState.all(const ContinuousRectangleBorder())),
           child: ListTile(
-            tileColor: backgroundcolor,
             shape: const Border.symmetric(horizontal: BorderSide()),
             title: Text(
-              "${widget.d.timestampString} | ${widget.d.topic}",
+              "${d.timestampString} | ${d.topic}",
               style: const TextStyle(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: IconButton(
-                onPressed: () {}, icon: const Icon(FluentIcons.collapse_menu)),
           ),
-        ),
-      ),
-    );
+          onPressed: () {
+            context.read<PlaylistProvider>().jumpTo(d.timestamp);
+          },
+        ));
   }
 }
