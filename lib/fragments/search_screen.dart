@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:reference_library/fragments/video_card.dart';
+import 'package:reference_library/widgets/tags_widget.dart';
+import 'package:reference_library/widgets/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
 
 // Search page, showing all available tags to search on, shows timestamps first then full videos
@@ -19,55 +20,11 @@ class _SearchScreenState extends State<SearchScreen> {
   final ScrollController _tagScroller = ScrollController();
   final ScrollController _sc = ScrollController();
   final int _extraScrollSpeed = 50;
-  // List of tags from the data provider
-  late List<String> _tags;
   late Map<String, VideoData> _videos;
-  // Stores the state of if a tag is selected or not for visual updating
-  final Map<String, bool> _chipSelect = {};
-  // List of the actually selected tags that will be used for filtering
-  final List<String> _selectedTags = [];
 
-  // Builds the list of all tag chips
-  List<Widget> buildChips(List<String> tags) {
-    // If there's no values saved yet set them all to unselected
-    bool init = false;
-    if (_chipSelect.isEmpty) {
-      init = true;
-    }
-    List<Widget> r = [];
-    // For each tag create a chip with its text and selected state, and the function to call on a press
-    for (String t in tags) {
-      bool? savedVal = false;
-      if (_chipSelect.containsKey(t)) {
-        savedVal = _chipSelect[t];
-      }
-      bool selected;
-      if (init) {
-        selected = false;
-      } else {
-        selected = savedVal!;
-      }
-      r.add(Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: CustomChip(t, selected, chipSelectCallback),
-      ));
-    }
-    return r;
-  }
-
-  // Function called when a chip is selected, it updates the visual state and filter list
-  void chipSelectCallback(String text, bool selected) {
-    setState(() {
-      bool updatedVal = selected ? false : true;
-      _chipSelect[text] = updatedVal;
-      if (updatedVal) {
-        _selectedTags.add(text);
-      } else {
-        _selectedTags.remove(text);
-      }
-      dev.log(_selectedTags.toString());
-    });
-  }
+  late final TagList _tagListWidget = TagList(
+    selectedTags: [],
+  );
 
   List<Widget> buildResults(Map<String, VideoData> videos) {
     List<Widget> r = [];
@@ -97,7 +54,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     // Watch the tag list
-    _tags = context.watch<DataProvider>().tags;
     _videos = context.watch<DataProvider>().videos;
     return ScaffoldPage(
       header: Row(
@@ -130,11 +86,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   Expanded(
                     flex: 9,
                     child: SingleChildScrollView(
-                      controller: _tagScroller,
-                      child: Wrap(
-                        children: buildChips(_tags),
-                      ),
-                    ),
+                        controller: _tagScroller, child: _tagListWidget),
                   ),
                 ],
               )),
@@ -149,34 +101,5 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
-  }
-}
-
-// Custom chip to handle displaying a selected chip
-class CustomChip extends StatelessWidget {
-  const CustomChip(this.text, this.selected, this.callback, {Key? key})
-      : super(key: key);
-  final String text;
-  final bool selected;
-  final Function callback;
-  @override
-  Widget build(BuildContext context) {
-    return selected
-        ? Chip.selected(
-            text: Text(
-              text,
-            ),
-            onPressed: () {
-              callback(text, selected);
-            },
-          )
-        : Chip(
-            text: Text(
-              text,
-            ),
-            onPressed: () {
-              callback(text, selected);
-            },
-          );
   }
 }

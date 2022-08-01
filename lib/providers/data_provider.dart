@@ -226,19 +226,24 @@ class DataProvider with ChangeNotifier {
   // void readTimestamp() {}
 
   // Similar idea to updating a video where you swap out the old ts and put in the new one
-  void updateTimestamp(String videoId, int index, TimestampData newTS) {
+  void updateTimestamp(
+      String videoId, TimestampData oldTS, TimestampData newTS) {
+    int index = _allVideos[videoId]!.timestamps.indexOf(oldTS);
+
     if (_allVideos[videoId]!.timestamps.length >= index + 1) {
       _allVideos[videoId]?.timestamps[index] = newTS;
+
       _localData.update(videoId, _allVideos[videoId]!.toMap());
       notifyListeners();
     }
   }
 
   // Deletes the timestamp
-  void deleteTimestamp(String videoId, int index) {
-    if (_allVideos[videoId]!.timestamps.length >= index + 1) {
-      _allVideos[videoId]?.timestamps.removeAt(index);
-      _localData.update(videoId, _allVideos[videoId]!.toMap());
+  void deleteTimestamp(TimestampData t) {
+    int index = _allVideos[t.videoId]!.timestamps.indexOf(t);
+    if (_allVideos[t.videoId]!.timestamps.length >= index + 1) {
+      _allVideos[t.videoId]?.timestamps.removeAt(index);
+      _localData.update(t.videoId, _allVideos[t.videoId]!.toMap());
       notifyListeners();
     }
   }

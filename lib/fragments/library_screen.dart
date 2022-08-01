@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:reference_library/fragments/playlist_widget.dart';
-import 'package:reference_library/fragments/video_card.dart';
+import 'package:reference_library/widgets/playlist_widget.dart';
+import 'package:reference_library/widgets/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 
