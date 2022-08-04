@@ -12,13 +12,31 @@ class TagList extends StatefulWidget {
   List<String> selectedTags;
 
   @override
-  State<TagList> createState() => _TagListState();
+  State<TagList> createState() => TagListState();
+  // void updateSelectedTags(List<String> n) {
+  //   selectedTags = n;
+  //   TagListState.updateStateSelectedTags(n);
+  // }
 }
 
-class _TagListState extends State<TagList> {
+class TagListState extends State<TagList> {
   List<String> _tags = [];
   // Stores the state of if a tag is selected or not for visual updating
   final Map<String, bool> _chipSelect = {};
+
+  // void updateStateSelectedTags(List<String> n) {
+  //   for (String t in _tags) {
+  //     bool selected;
+  //     if (widget.selectedTags.contains(t)) {
+  //       selected = true;
+  //     } else {
+  //       selected = false;
+  //     }
+  //     setState(() {
+  //       _chipSelect[t] = selected;
+  //     });
+  //   }
+  // }
 
   // Function called when a chip is selected, it updates the visual state and filter list
   void chipSelectCallback(String text, bool selected) {
