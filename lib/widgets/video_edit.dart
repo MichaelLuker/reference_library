@@ -8,9 +8,9 @@ import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
 
-class TimestampEditDialog extends StatelessWidget {
-  TimestampEditDialog({Key? key, required this.d}) : super(key: key);
-  TimestampData d;
+class VideoEditDialog extends StatelessWidget {
+  VideoEditDialog({Key? key, required this.d}) : super(key: key);
+  VideoData d;
   TextEditingController topicTEC = TextEditingController();
   TextEditingController hoursTEC = TextEditingController();
   TextEditingController minutesTEC = TextEditingController();
@@ -18,25 +18,12 @@ class TimestampEditDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    topicTEC.text = d.topic;
-    List<String> timePieces = d.timestampString.split(":");
-    hoursTEC.text = timePieces[0];
-    minutesTEC.text = timePieces[1];
-    secondsTEC.text = timePieces[2];
-
-    // Pass a deep copy of the currently selected tags to the TagList widget
-    // Before when it was just d.tags and it was passing by reference it would make
-    // changes before the save button was being hit, and cancel didn't reset
-    // [...d.tags] will create a full copy of the list to work with statelessly
-    // and should only ever update when the save button is used...
-    TagList tags = TagList(selectedTags: [...d.tags]);
-    //TagList tags = TagList(selectedTags: d.tags);
     return ContentDialog(
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width) * 0.65,
       title: const Center(
         child: Text(
-          "Edit Timestamp",
+          "Edit Video Information",
           style: TextStyle(
             fontSize: 16,
           ),
@@ -96,7 +83,7 @@ class TimestampEditDialog extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: SingleChildScrollView(
                       controller: ScrollController(),
-                      child: tags,
+                      child: Container(),
                     ),
                   ),
                 )),
@@ -107,30 +94,30 @@ class TimestampEditDialog extends StatelessWidget {
         // Save updated timestamp button
         Button(
             onPressed: () {
-              int? hours = int.tryParse(hoursTEC.text);
-              int? minutes = int.tryParse(hoursTEC.text);
-              int? seconds = int.tryParse(hoursTEC.text);
-              if (hours != null && minutes != null && seconds != null) {
-                context.read<DataProvider>().updateTimestamp(
-                    d.videoId,
-                    d,
-                    TimestampData(tags.selectedTags, d.videoId, topicTEC.text,
-                        "${hoursTEC.text.padLeft(2, "0")}:${minutesTEC.text.padLeft(2, "0")}:${secondsTEC.text.padLeft(2, "0")}"));
-                context
-                    .read<PlaylistProvider>()
-                    .updateCurrentVideoData(context);
-                Navigator.pop(context);
-              } else {
-                showSnackbar(
-                    context,
-                    const Card(
-                        backgroundColor: Colors.black,
-                        child: Text(
-                          "Bad Timestamp",
-                          style: TextStyle(color: Colors.warningPrimaryColor),
-                        )),
-                    alignment: Alignment.center);
-              }
+              // int? hours = int.tryParse(hoursTEC.text);
+              // int? minutes = int.tryParse(hoursTEC.text);
+              // int? seconds = int.tryParse(hoursTEC.text);
+              // if (hours != null && minutes != null && seconds != null) {
+              //   context.read<DataProvider>().updateTimestamp(
+              //       d.videoId,
+              //       d,
+              //       TimestampData(tags.selectedTags, d.videoId, topicTEC.text,
+              //           "${hoursTEC.text.padLeft(2, "0")}:${minutesTEC.text.padLeft(2, "0")}:${secondsTEC.text.padLeft(2, "0")}"));
+              //   context
+              //       .read<PlaylistProvider>()
+              //       .updateCurrentVideoData(context);
+              //   Navigator.pop(context);
+              // } else {
+              //   showSnackbar(
+              //       context,
+              //       const Card(
+              //           backgroundColor: Colors.black,
+              //           child: Text(
+              //             "Bad Timestamp",
+              //             style: TextStyle(color: Colors.warningPrimaryColor),
+              //           )),
+              //       alignment: Alignment.center);
+              // }
             },
             child: const Text("Save")),
         // Delete timestamp button
@@ -148,12 +135,12 @@ class TimestampEditDialog extends StatelessWidget {
                         Button(
                           child: const Text("Confirm"),
                           onPressed: () {
-                            context.read<DataProvider>().deleteTimestamp(d);
-                            context
-                                .read<PlaylistProvider>()
-                                .updateCurrentVideoData(context);
-                            Navigator.pop(context);
-                            Navigator.pop(context);
+                            // context.read<DataProvider>().deleteTimestamp(d);
+                            // context
+                            //     .read<PlaylistProvider>()
+                            //     .updateCurrentVideoData(context);
+                            // Navigator.pop(context);
+                            // Navigator.pop(context);
                           },
                         ),
                         FilledButton(

@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/widgets/video_edit.dart';
 import '../providers/data_provider.dart';
 
 // Widget to display a video thumbnail and title (library, playlist, search screens)
@@ -55,6 +56,11 @@ class _VideoCardState extends State<VideoCard> {
           child: GestureDetector(
               onSecondaryTap: () {
                 // Right click to show video edit screen
+                showDialog<VideoCard>(
+                    context: context,
+                    builder: (context) => VideoEditDialog(
+                          d: data,
+                        ));
               },
               onTap: () {
                 // Left click the card to play the video immediately
