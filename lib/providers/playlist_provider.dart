@@ -120,8 +120,11 @@ class PlaylistProvider with ChangeNotifier {
   }
 
   void updateCurrentVideoData(BuildContext context) {
-    _currentVideo = context.read<DataProvider>().videos[_currentVideo!.videoId];
-    notifyListeners();
+    if (_currentVideo != null) {
+      _currentVideo =
+          context.read<DataProvider>().videos[_currentVideo!.videoId];
+      notifyListeners();
+    }
   }
 
   // Plays the video that is previous to the current spot of the playlist

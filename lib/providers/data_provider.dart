@@ -296,6 +296,11 @@ class TimestampData {
         map['topic'],
         map['time']);
   }
+
+  @override
+  String toString() {
+    return "Time: $timestampString | Topic: $topic | Tags: ${tags.toString()} | VID: $videoId\n";
+  }
 }
 
 // Class for laying out video data

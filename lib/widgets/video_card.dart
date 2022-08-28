@@ -59,6 +59,7 @@ class _VideoCardState extends State<VideoCard> {
                 showDialog<VideoCard>(
                     context: context,
                     builder: (context) => VideoEditDialog(
+                          title: "Edit Video Information",
                           d: data,
                         ));
               },

@@ -48,7 +48,7 @@ class TagListState extends State<TagList> {
       } else {
         widget.selectedTags.removeWhere((element) => element == text);
       }
-      dev.log("Selected Tags: ${widget.selectedTags.toString()}");
+      //dev.log("Selected Tags: ${widget.selectedTags.toString()}");
     });
   }
 
@@ -86,7 +86,7 @@ class TagListState extends State<TagList> {
         child: TagChip(t, selected, chipSelectCallback),
       ));
     }
-    dev.log("Chip States: ${_chipSelect.toString()}");
+    //dev.log("Chip States: ${_chipSelect.toString()}");
     return r;
   }
 
