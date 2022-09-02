@@ -7,6 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/fragments/play_screen.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
@@ -19,18 +20,22 @@ class VideoEditDialog extends StatelessWidget {
   VideoData d;
   TextEditingController titleTEC = TextEditingController();
   TextEditingController urlTEC = TextEditingController();
+  TextEditingController thumbnailPathTEC = TextEditingController();
   TextEditingController localPathTEC = TextEditingController();
   bool isSeries = false;
+  List<TimestampData> videoTimestamps = [];
   List<String> selectedTags = [];
 
-  void updatePathTEC(BuildContext context) async {
+  void updatePathTEC(BuildContext context, TextEditingController tec,
+      String initial, String title, FileType type) async {
     FilePickerResult? res = await FilePicker.platform.pickFiles(
-      dialogTitle: "Select Video",
-      initialDirectory: context.read<SettingsProvider>().videoFolder.path,
-      type: FileType.video,
+      dialogTitle: title,
+      //initialDirectory: context.read<SettingsProvider>().videoFolder.path,
+      initialDirectory: initial,
+      type: type,
     );
     if (res != null && res.files.isNotEmpty) {
-      localPathTEC.text = res.files[0].path!;
+      tec.text = res.files[0].path!;
     }
   }
 
@@ -53,6 +58,7 @@ class VideoEditDialog extends StatelessWidget {
     urlTEC.text = d.url;
     localPathTEC.text =
         "${context.read<SettingsProvider>().videoFolder.path}/${d.localPath}";
+    thumbnailPathTEC.text = d.thumbnailPath;
     isSeries = d.series;
     VideoSeriesData vsd =
         VideoSeriesData(d.series, d.seriesTitle, d.seriesIndex);
@@ -60,6 +66,7 @@ class VideoEditDialog extends StatelessWidget {
       seriesData: vsd,
     );
     selectedTags = [...d.tags];
+    videoTimestamps = [...d.timestamps];
 
     return ContentDialog(
       constraints:
@@ -93,15 +100,52 @@ class VideoEditDialog extends StatelessWidget {
             child: TextBox(
               outsidePrefix: const Text("Path:  "),
               onTap: () {
-                updatePathTEC(context);
+                updatePathTEC(
+                    context,
+                    localPathTEC,
+                    context.read<SettingsProvider>().videoFolder.path,
+                    "Select Video File",
+                    FileType.video);
               },
               prefix: IconButton(
                   icon: const Icon(FluentIcons.open_folder_horizontal),
                   onPressed: () {
-                    updatePathTEC(context);
+                    updatePathTEC(
+                        context,
+                        localPathTEC,
+                        context.read<SettingsProvider>().videoFolder.path,
+                        "Select Video File",
+                        FileType.video);
                   }),
               readOnly: true,
               controller: localPathTEC,
+            ),
+          ),
+          // Thumbnail
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+            child: TextBox(
+              outsidePrefix: const Text("Thumb:  "),
+              onTap: () {
+                updatePathTEC(
+                    context,
+                    thumbnailPathTEC,
+                    context.read<SettingsProvider>().thumbFolder.path,
+                    "Select Thumbnail",
+                    FileType.image);
+              },
+              prefix: IconButton(
+                  icon: const Icon(FluentIcons.open_folder_horizontal),
+                  onPressed: () {
+                    updatePathTEC(
+                        context,
+                        thumbnailPathTEC,
+                        context.read<SettingsProvider>().thumbFolder.path,
+                        "Select Thumbnail",
+                        FileType.image);
+                  }),
+              readOnly: true,
+              controller: thumbnailPathTEC,
             ),
           ),
           // Any possible series settings
@@ -148,7 +192,7 @@ class VideoEditDialog extends StatelessWidget {
                               child: ListView(
                                 controller: ScrollController(),
                                 children:
-                                    buildTimestamps(context, d.timestamps),
+                                    buildTimestamps(context, videoTimestamps),
                               )),
                         )),
                   ),
@@ -231,14 +275,38 @@ class VideoEditDialog extends StatelessWidget {
         // Save updated timestamp button
         Button(
             onPressed: () {
-              log("Going to save video data as follow:");
-              log("Title: ${titleTEC.text}");
-              log("URL: ${urlTEC.text}");
-              log("Path: ${localPathTEC.text}");
-              log("SeriesData: ${videoSeriesEditWidget.seriesData.toString()}");
-              log("Timestamps: \n${d.timestamps.toString()}");
-              log("SelectedTags: ${selectedTags.toString()}");
+              // log("Going to save video data as follow:");
+              // log("Title: ${titleTEC.text}");
+              // log("URL: ${urlTEC.text}");
+              // log("Path: ${localPathTEC.text}");
+              // log("Thumbnail: ${thumbnailPathTEC.text}");
+              // log("SeriesData: ${videoSeriesEditWidget.seriesData.toString()}");
+              // log("Timestamps: \n${d.timestamps.toString()}");
+              // log("SelectedTags: ${selectedTags.toString()}");
 
+              String trimmedVideoPath = localPathTEC.text.replaceAll(
+                  RegExp(context.read<SettingsProvider>().videoFolder.path),
+                  "");
+
+              VideoData newData = VideoData(
+                  titleTEC.text.toLowerCase().replaceAll(' ', '_'),
+                  titleTEC.text,
+                  trimmedVideoPath,
+                  videoSeriesEditWidget.seriesData.isSeries,
+                  videoSeriesEditWidget.seriesData.seriesName,
+                  videoSeriesEditWidget.seriesData.seriesPosition,
+                  false,
+                  urlTEC.text,
+                  videoTimestamps,
+                  selectedTags,
+                  context.read<SettingsProvider>().thumbFolder.path,
+                  thumbnailPath: thumbnailPathTEC.text);
+
+              context.read<DataProvider>().updateVideo(d, newData);
+
+              Future.delayed(const Duration(milliseconds: 50)).then((value) {
+                Navigator.pop(context, newData);
+              });
               // int? hours = int.tryParse(hoursTEC.text);
               // int? minutes = int.tryParse(hoursTEC.text);
               // int? seconds = int.tryParse(hoursTEC.text);
@@ -273,7 +341,7 @@ class VideoEditDialog extends StatelessWidget {
                   builder: (_) {
                     return ContentDialog(
                       title: const Text(
-                        "Really delete timestamp?",
+                        "Really delete video?",
                         style: TextStyle(fontSize: 16),
                       ),
                       actions: [

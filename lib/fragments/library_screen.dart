@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
@@ -13,18 +14,12 @@ import 'package:reference_library/providers/playlist_provider.dart';
 // I think this can be stateless, it'll just rebuild a grid like view of videos based on the data provider
 // If a video is clicked then it'll just throw it on the playlist and jump to the playing pane
 class LibraryScreen extends StatelessWidget {
-  LibraryScreen({Key? key}) : super(key: key);
+  LibraryScreen({Key? key, required this.videoList}) : super(key: key);
 
   final ScrollController _sc = ScrollController();
   final int _extraScrollSpeed = 50;
 
-  List<Widget> buildResults(Map<String, VideoData> videos) {
-    List<Widget> r = [];
-    for (VideoData v in videos.values) {
-      r.add(VideoCard(v));
-    }
-    return r;
-  }
+  Map<String, VideoData> videoList;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +50,7 @@ class LibraryScreen extends StatelessWidget {
             child: GridView.count(
                 controller: _sc,
                 crossAxisCount: 5,
-                children: buildResults(context.watch<DataProvider>().videos)),
+                children: videoList.values.map((e) => VideoCard(e)).toList()),
           ),
         ],
       ),

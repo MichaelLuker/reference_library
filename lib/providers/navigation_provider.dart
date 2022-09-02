@@ -73,6 +73,19 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void refreshPage() {
+    int oldI = _index;
+    _index++;
+    if (_index == 4) {
+      _index == 0;
+    }
+    notifyListeners();
+    Future.delayed(const Duration(milliseconds: 50)).then((value) {
+      _index = oldI;
+      notifyListeners();
+    });
+  }
+
   // Getters
   int get index => _index;
   bool get showMiniPlayer => _showMiniPlayer;

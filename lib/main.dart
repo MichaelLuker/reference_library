@@ -215,7 +215,8 @@ class _AppState extends State<App> with WindowListener {
                   // List of all the different panes, has to match with the icon
                   //   list above in the navigaion bar
                   children: [
-                    LibraryScreen(),
+                    LibraryScreen(
+                        videoList: context.watch<DataProvider>().videos),
                     SeriesScreen(),
                     const SearchScreen(),
                     const PlaybackScreen(),

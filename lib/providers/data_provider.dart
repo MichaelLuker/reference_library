@@ -192,13 +192,14 @@ class DataProvider with ChangeNotifier {
 
   // Updates an old video data entry to a new one
   void updateVideo(VideoData oldVid, VideoData newVid) {
+    log(newVid.toString());
     if (oldVid != newVid) {
       if (_allVideos.containsKey(oldVid.videoId)) {
         _allVideos.remove(oldVid.videoId);
         _allVideos[newVid.videoId] = newVid;
+        notifyListeners();
         _localData.delete(oldVid.videoId);
         _localData.update(newVid.videoId, newVid.toMap());
-        notifyListeners();
       }
     }
   }
@@ -330,23 +331,26 @@ class VideoData {
       this.url,
       this.timestamps,
       this.tags,
-      this.thumbDir) {
+      this.thumbDir,
+      {this.thumbnailPath = ""}) {
     // Check to see if a thumbnail exists, if it doesn't then download and save it
 
-    File possibleThumbnail = File("$thumbDir/$videoId.jpg");
-    if (!possibleThumbnail.existsSync()) {
-      if (url.contains("youtube")) {
-        String tmbUrl =
-            YoutubeThumbnail(youtubeId: url.split('watch?v=').last).hq();
-        NetworkAssetBundle(Uri.parse(tmbUrl)).load(tmbUrl).then((value) {
-          Uint8List tmbBytes = value.buffer.asUint8List();
-          possibleThumbnail
-              .create()
-              .then((value) => value.writeAsBytes(tmbBytes));
-        });
+    if (thumbnailPath == "") {
+      File possibleThumbnail = File("$thumbDir/$videoId.jpg");
+      if (!possibleThumbnail.existsSync()) {
+        if (url.contains("youtube")) {
+          String tmbUrl =
+              YoutubeThumbnail(youtubeId: url.split('watch?v=').last).hq();
+          NetworkAssetBundle(Uri.parse(tmbUrl)).load(tmbUrl).then((value) {
+            Uint8List tmbBytes = value.buffer.asUint8List();
+            possibleThumbnail
+                .create()
+                .then((value) => value.writeAsBytes(tmbBytes));
+          });
+        }
       }
+      thumbnailPath = possibleThumbnail.path;
     }
-    thumbnailPath = possibleThumbnail.path;
   }
 
   // Clone a video object
@@ -395,5 +399,15 @@ class VideoData {
         ts,
         List<String>.from(map['tags'].map((e) => e.toString())),
         thumbDir);
+  }
+
+  String toString() {
+    String r = "";
+    r += "Title: $title\n";
+    r += "URL: $url\n";
+    r += "Path: $localPath\n";
+    r += "Thumbnail: $thumbnailPath\n";
+    r += "Tags: ${tags.toString()}\n";
+    return r;
   }
 }

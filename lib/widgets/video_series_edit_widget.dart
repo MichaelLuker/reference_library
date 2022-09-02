@@ -105,8 +105,16 @@ class _VideoSeriesEditWidgetState extends State<VideoSeriesEditWidget> {
                               FilteringTextInputFormatter.allow(RegExp("[0-9]"))
                             ],
                             onChanged: (value) {
-                              widget.seriesData.seriesPosition =
-                                  int.parse(value);
+                              if (value.isNotEmpty) {
+                                int? a = int.tryParse(value);
+                                if (a != null) {
+                                  widget.seriesData.seriesPosition = a;
+                                } else {
+                                  widget.seriesData.seriesPosition = 0;
+                                }
+                              } else {
+                                widget.seriesData.seriesPosition = 0;
+                              }
                             },
                             controller: indexController,
                             keyboardType: TextInputType.number,

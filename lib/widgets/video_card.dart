@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
@@ -56,12 +57,19 @@ class _VideoCardState extends State<VideoCard> {
           child: GestureDetector(
               onSecondaryTap: () {
                 // Right click to show video edit screen
-                showDialog<VideoCard>(
-                    context: context,
-                    builder: (context) => VideoEditDialog(
-                          title: "Edit Video Information",
-                          d: data,
-                        ));
+                setState(() {
+                  showDialog<VideoData>(
+                      context: context,
+                      builder: (context) => VideoEditDialog(
+                            title: "Edit Video Information",
+                            d: data,
+                          )).then((value) {
+                    if (value != null) {
+                      data = value;
+                      context.read<NavigationProvider>().refreshPage();
+                    }
+                  });
+                });
               },
               onTap: () {
                 // Left click the card to play the video immediately
