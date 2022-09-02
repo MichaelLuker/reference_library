@@ -401,6 +401,7 @@ class VideoData {
         thumbDir);
   }
 
+  @override
   String toString() {
     String r = "";
     r += "Title: $title\n";

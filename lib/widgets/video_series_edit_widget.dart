@@ -1,6 +1,4 @@
 // Stateful widget to show or hide series information when editing a video
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +70,7 @@ class _VideoSeriesEditWidgetState extends State<VideoSeriesEditWidget> {
                 children: [
                   Row(
                     children: [
-                      Icon(FluentIcons.charticulator_line_style_dashed),
+                      const Icon(FluentIcons.charticulator_line_style_dashed),
                       const Text("  Series: "),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.35,

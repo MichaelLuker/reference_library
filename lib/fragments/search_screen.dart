@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
@@ -23,7 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   late Map<String, VideoData> _videos;
 
   late final TagList _tagListWidget = TagList(
-    selectedTags: [],
+    selectedTags: const [],
   );
 
   List<Widget> buildResults(Map<String, VideoData> videos) {

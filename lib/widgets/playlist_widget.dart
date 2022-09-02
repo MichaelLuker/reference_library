@@ -4,6 +4,7 @@ import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 
+// ignore: must_be_immutable
 class PlayListWidget extends StatefulWidget {
   PlayListWidget({Key? key}) : super(key: key);
 

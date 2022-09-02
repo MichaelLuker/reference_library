@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart' as material;
@@ -107,7 +105,7 @@ class PlaybackScreen extends StatelessWidget {
                                         secondsTEC.text = timePieces[2];
 
                                         TagList tags =
-                                            TagList(selectedTags: []);
+                                            TagList(selectedTags: const []);
 
                                         showDialog<TimestampItem>(
                                             context: context,

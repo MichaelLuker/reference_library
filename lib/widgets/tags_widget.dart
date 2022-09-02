@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
@@ -13,30 +12,12 @@ class TagList extends StatefulWidget {
 
   @override
   State<TagList> createState() => TagListState();
-  // void updateSelectedTags(List<String> n) {
-  //   selectedTags = n;
-  //   TagListState.updateStateSelectedTags(n);
-  // }
 }
 
 class TagListState extends State<TagList> {
   List<String> _tags = [];
   // Stores the state of if a tag is selected or not for visual updating
   final Map<String, bool> _chipSelect = {};
-
-  // void updateStateSelectedTags(List<String> n) {
-  //   for (String t in _tags) {
-  //     bool selected;
-  //     if (widget.selectedTags.contains(t)) {
-  //       selected = true;
-  //     } else {
-  //       selected = false;
-  //     }
-  //     setState(() {
-  //       _chipSelect[t] = selected;
-  //     });
-  //   }
-  // }
 
   // Function called when a chip is selected, it updates the visual state and filter list
   void chipSelectCallback(String text, bool selected) {
