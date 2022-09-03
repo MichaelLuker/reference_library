@@ -1,17 +1,21 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/fragments/play_screen.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
 import 'package:reference_library/widgets/video_series_edit_widget.dart';
 
 // ignore: must_be_immutable
 class VideoEditDialog extends StatelessWidget {
-  VideoEditDialog({Key? key, required this.title, required this.d})
+  VideoEditDialog(
+      {Key? key, required this.title, required this.d, required this.newVideo})
       : super(key: key);
   String title;
   VideoData d;
@@ -20,10 +24,9 @@ class VideoEditDialog extends StatelessWidget {
   TextEditingController thumbnailPathTEC = TextEditingController();
   TextEditingController localPathTEC = TextEditingController();
   bool isSeries = false;
-  List<TimestampData> videoTimestamps = [];
-  List<String> selectedTags = [];
+  bool newVideo;
 
-  void updatePathTEC(BuildContext context, TextEditingController tec,
+  Future<void> updatePathTEC(BuildContext context, TextEditingController tec,
       String initial, String title, FileType type) async {
     FilePickerResult? res = await FilePicker.platform.pickFiles(
       dialogTitle: title,
@@ -51,20 +54,20 @@ class VideoEditDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    titleTEC.text = d.title;
-    urlTEC.text = d.url;
+    titleTEC.text = context.read<EditingProvider>().videoData!.title;
+    urlTEC.text = context.read<EditingProvider>().videoData!.url;
     localPathTEC.text =
-        "${context.read<SettingsProvider>().videoFolder.path}/${d.localPath}";
-    thumbnailPathTEC.text = d.thumbnailPath;
+        "${context.read<SettingsProvider>().videoFolder.path}/${context.read<EditingProvider>().videoData!.localPath}";
+    thumbnailPathTEC.text =
+        context.read<EditingProvider>().videoData!.thumbnailPath;
     isSeries = d.series;
     VideoSeriesData vsd =
         VideoSeriesData(d.series, d.seriesTitle, d.seriesIndex);
     VideoSeriesEditWidget videoSeriesEditWidget = VideoSeriesEditWidget(
       seriesData: vsd,
     );
-    selectedTags = [...d.tags];
-    videoTimestamps = [...d.timestamps];
 
+    VideoData v = context.watch<EditingProvider>().videoData!;
     return ContentDialog(
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width) * 0.85,
@@ -81,21 +84,27 @@ class VideoEditDialog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
             child: TextBox(
-              outsidePrefix: const Text("Title:  "),
+              outsidePrefix: const Text("Title:      "),
               controller: titleTEC,
+              onChanged: (value) {
+                context.read<EditingProvider>().videoData!.title = value;
+              },
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
             child: TextBox(
-              outsidePrefix: const Text("URL:  "),
+              outsidePrefix: const Text("URL:      "),
               controller: urlTEC,
+              onChanged: (value) {
+                context.read<EditingProvider>().videoData!.url = value;
+              },
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
             child: TextBox(
-              outsidePrefix: const Text("Path:  "),
+              outsidePrefix: const Text("Path:      "),
               onTap: () {
                 updatePathTEC(
                     context,
@@ -119,32 +128,48 @@ class VideoEditDialog extends StatelessWidget {
             ),
           ),
           // Thumbnail
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-            child: TextBox(
-              outsidePrefix: const Text("Thumb:  "),
-              onTap: () {
-                updatePathTEC(
-                    context,
-                    thumbnailPathTEC,
-                    context.read<SettingsProvider>().thumbFolder.path,
-                    "Select Thumbnail",
-                    FileType.image);
-              },
-              prefix: IconButton(
-                  icon: const Icon(FluentIcons.open_folder_horizontal),
-                  onPressed: () {
-                    updatePathTEC(
-                        context,
-                        thumbnailPathTEC,
-                        context.read<SettingsProvider>().thumbFolder.path,
-                        "Select Thumbnail",
-                        FileType.image);
-                  }),
-              readOnly: true,
-              controller: thumbnailPathTEC,
+          Visibility(
+            visible: !newVideo,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+              child: TextBox(
+                outsidePrefix: const Text("Thumb:  "),
+                onTap: () async {
+                  await updatePathTEC(
+                      context,
+                      thumbnailPathTEC,
+                      context.read<SettingsProvider>().thumbFolder.path,
+                      "Select Thumbnail",
+                      FileType.image);
+                  VideoData c = d.clone();
+                  c.thumbnailPath = thumbnailPathTEC.text;
+                  context.read<EditingProvider>().setVideoData(c);
+                },
+                prefix: IconButton(
+                    icon: const Icon(FluentIcons.open_folder_horizontal),
+                    onPressed: () async {
+                      await updatePathTEC(
+                          context,
+                          thumbnailPathTEC,
+                          context.read<SettingsProvider>().thumbFolder.path,
+                          "Select Thumbnail",
+                          FileType.image);
+                      VideoData c = d.clone();
+                      c.thumbnailPath = thumbnailPathTEC.text;
+                      context.read<EditingProvider>().setVideoData(c);
+                    }),
+                readOnly: true,
+                controller: thumbnailPathTEC,
+              ),
             ),
           ),
+          // Thumbnail Preview
+          Visibility(
+              visible: !newVideo,
+              child: Center(
+                child: SizedBox(
+                    width: 200, child: Image.file(File(v.thumbnailPath))),
+              )),
           // Any possible series settings
           videoSeriesEditWidget,
           // Video tags
@@ -159,12 +184,184 @@ class VideoEditDialog extends StatelessWidget {
                     children: [
                       const Text("Timestamps:"),
                       IconButton(
-                        icon: const Icon(FluentIcons.circle_plus),
-                        onPressed: () {
-                          // Show dialog to add a new timestamp to the video
-                          log("New Timestamp Button");
-                        },
-                      )
+                          onPressed: () {
+                            TextEditingController topicTEC =
+                                TextEditingController();
+                            TextEditingController hoursTEC =
+                                TextEditingController();
+                            TextEditingController minutesTEC =
+                                TextEditingController();
+                            TextEditingController secondsTEC =
+                                TextEditingController();
+
+                            topicTEC.text = "Timestamp Topic";
+                            List<String> timePieces = ["00", "00", "00"];
+                            hoursTEC.text = timePieces[0];
+                            minutesTEC.text = timePieces[1];
+                            secondsTEC.text = timePieces[2];
+
+                            // ignore: prefer_const_literals_to_create_immutables
+                            TagList tags = TagList(
+                              selectedTags: [],
+                              editing: false,
+                            );
+
+                            showDialog<TimestampItem>(
+                                context: context,
+                                builder: (context) => ContentDialog(
+                                      title: const Center(
+                                        child: Text(
+                                          "Edit Timestamp",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      content: Wrap(children: [
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 0, 0, 16),
+                                          child: TextBox(
+                                            controller: topicTEC,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Text("  Timestamp:  "),
+                                            SizedBox(
+                                              width: 50,
+                                              child: TextBox(
+                                                maxLength: 2,
+                                                // Make it so only numbers are allowed
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .allow(RegExp("[0-9]"))
+                                                ],
+                                                controller: hoursTEC,
+                                              ),
+                                            ),
+                                            const Text(":"),
+                                            SizedBox(
+                                              width: 50,
+                                              child: TextBox(
+                                                maxLength: 2,
+                                                // Make it so only numbers are allowed
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .allow(RegExp("[0-9]"))
+                                                ],
+                                                controller: minutesTEC,
+                                              ),
+                                            ),
+                                            const Text(":"),
+                                            SizedBox(
+                                              width: 50,
+                                              child: TextBox(
+                                                maxLength: 2,
+                                                // Make it so only numbers are allowed
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .allow(RegExp("[0-9]"))
+                                                ],
+                                                controller: secondsTEC,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 18, 0, 0),
+                                            child: SizedBox(
+                                              width: 300,
+                                              height: 300,
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                                  .all(
+                                                              Radius.circular(
+                                                                  10)),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                            color: Colors
+                                                                .grey[200]),
+                                                        BoxShadow(
+                                                            color: Colors
+                                                                .grey[160],
+                                                            spreadRadius: -6,
+                                                            blurRadius: 6)
+                                                      ]),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: tags,
+                                                  )),
+                                            ),
+                                          ),
+                                        )
+                                      ]),
+                                      actions: [
+                                        Button(
+                                            onPressed: () {
+                                              int? hours =
+                                                  int.tryParse(hoursTEC.text);
+                                              int? minutes =
+                                                  int.tryParse(hoursTEC.text);
+                                              int? seconds =
+                                                  int.tryParse(hoursTEC.text);
+                                              if (hours != null &&
+                                                  minutes != null &&
+                                                  seconds != null) {
+                                                TimestampData newTS = TimestampData(
+                                                    tags.selectedTags,
+                                                    titleTEC.text
+                                                        .toLowerCase()
+                                                        .replaceAll(' ', '_'),
+                                                    topicTEC.text,
+                                                    "${hoursTEC.text.padLeft(2, "0")}:${minutesTEC.text.padLeft(2, "0")}:${secondsTEC.text.padLeft(2, "0")}");
+                                                context
+                                                    .read<EditingProvider>()
+                                                    .addTimestamp(newTS);
+                                                context
+                                                    .read<DataProvider>()
+                                                    .createTimestamp(
+                                                        titleTEC.text
+                                                            .toLowerCase()
+                                                            .replaceAll(
+                                                                ' ', '_'),
+                                                        newTS);
+
+                                                ;
+
+                                                Navigator.pop(context);
+                                              } else {
+                                                showSnackbar(
+                                                    context,
+                                                    const Card(
+                                                        backgroundColor:
+                                                            Colors.black,
+                                                        child: Text(
+                                                          "Bad Timestamp",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .warningPrimaryColor),
+                                                        )),
+                                                    alignment:
+                                                        Alignment.center);
+                                              }
+                                            },
+                                            child: const Text("Save")),
+                                        FilledButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("Cancel"))
+                                      ],
+                                    ));
+                          },
+                          icon: const Icon(FluentIcons.circle_addition)),
                     ],
                   ),
                   Padding(
@@ -188,13 +385,17 @@ class VideoEditDialog extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: ListView(
                                 controller: ScrollController(),
-                                children:
-                                    buildTimestamps(context, videoTimestamps),
+                                children: buildTimestamps(
+                                    context,
+                                    context
+                                        .watch<EditingProvider>()
+                                        .timestamps!),
                               )),
                         )),
                   ),
                 ],
               ),
+
               // Tags
               Column(
                 children: [
@@ -205,7 +406,35 @@ class VideoEditDialog extends StatelessWidget {
                         icon: const Icon(FluentIcons.circle_plus),
                         onPressed: () {
                           // Show dialog to add a new tags to the list
-                          log("New Tags Button");
+                          TextEditingController newTagTEC =
+                              TextEditingController();
+                          showDialog<String>(
+                              context: context,
+                              builder: (context) => ContentDialog(
+                                    title: const Text("Add Tag"),
+                                    content: TextBox(
+                                      controller: newTagTEC,
+                                    ),
+                                    actions: [
+                                      Button(
+                                          onPressed: () {
+                                            context
+                                                .read<EditingProvider>()
+                                                .addTag(newTagTEC.text);
+                                            context
+                                                .read<DataProvider>()
+                                                .addTag(newTagTEC.text);
+
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Save")),
+                                      FilledButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Cancel"))
+                                    ],
+                                  ));
                         },
                       )
                     ],
@@ -231,7 +460,10 @@ class VideoEditDialog extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: SingleChildScrollView(
                               controller: ScrollController(),
-                              child: TagList(selectedTags: selectedTags),
+                              child: TagList(
+                                  editing: true,
+                                  selectedTags:
+                                      context.watch<EditingProvider>().tags!),
                             ),
                           ),
                         )),
@@ -246,12 +478,26 @@ class VideoEditDialog extends StatelessWidget {
         // Save updated timestamp button
         Button(
             onPressed: () {
+              // If the videoID has been changed, update all the timestamps too
+              if (d.title != titleTEC.text) {
+                context.read<EditingProvider>().timestamps!.forEach((element) =>
+                    element.videoId = titleTEC.text
+                        .toLowerCase()
+                        .replaceAll(' ', '_')
+                        .replaceAll(RegExp("[^A-Za-z0-9_]"), "")
+                        .replaceAll(RegExp("[^A-Za-z0-9_]"), ""));
+              }
+
               String trimmedVideoPath = localPathTEC.text.replaceAll(
-                  RegExp(context.read<SettingsProvider>().videoFolder.path),
+                  RegExp(
+                      context.read<SettingsProvider>().videoFolder.path + "/"),
                   "");
 
               VideoData newData = VideoData(
-                  titleTEC.text.toLowerCase().replaceAll(' ', '_'),
+                  titleTEC.text
+                      .toLowerCase()
+                      .replaceAll(' ', '_')
+                      .replaceAll(RegExp("[^A-Za-z0-9_]"), ""),
                   titleTEC.text,
                   trimmedVideoPath,
                   videoSeriesEditWidget.seriesData.isSeries,
@@ -259,8 +505,8 @@ class VideoEditDialog extends StatelessWidget {
                   videoSeriesEditWidget.seriesData.seriesPosition,
                   false,
                   urlTEC.text,
-                  videoTimestamps,
-                  selectedTags,
+                  context.read<EditingProvider>().timestamps!,
+                  context.read<EditingProvider>().tags!,
                   context.read<SettingsProvider>().thumbFolder.path,
                   thumbnailPath: thumbnailPathTEC.text);
 
@@ -272,33 +518,49 @@ class VideoEditDialog extends StatelessWidget {
             },
             child: const Text("Save")),
         // Delete timestamp button
-        IconButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (_) {
-                    return ContentDialog(
-                      title: const Text(
-                        "Really delete video?",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      actions: [
-                        Button(
-                          child: const Text("Confirm"),
-                          onPressed: () {
-                            // Code to delete a video
-                          },
+        Visibility(
+          visible: !newVideo,
+          child: IconButton(
+              onPressed: () {
+                showDialog<bool>(
+                    context: context,
+                    builder: (_) {
+                      return ContentDialog(
+                        title: const Text(
+                          "Really delete video?",
+                          style: TextStyle(fontSize: 16),
                         ),
-                        FilledButton(
-                            child: const Text("Cancel"),
+                        actions: [
+                          Button(
+                            child: const Text("Confirm"),
                             onPressed: () {
-                              Navigator.pop(context);
-                            })
-                      ],
-                    );
-                  });
-            },
-            icon: const Icon(FluentIcons.delete)),
+                              Navigator.pop(context, true);
+                            },
+                          ),
+                          FilledButton(
+                              child: const Text("Cancel"),
+                              onPressed: () {
+                                Navigator.pop(context, false);
+                              })
+                        ],
+                      );
+                    }).then((value) {
+                  if (value != null && value) {
+                    // Delete associated files
+                    context.read<DataProvider>().deleteVideo(d.videoId);
+
+                    // Return a blank videodata file so it sees there was a change and needs to refresh
+                    VideoData newData = VideoData(
+                        "", "", "", false, "", -1, false, "", [], [], "");
+                    Future.delayed(const Duration(milliseconds: 50))
+                        .then((value) {
+                      Navigator.pop(context, newData);
+                    });
+                  }
+                });
+              },
+              icon: const Icon(FluentIcons.delete)),
+        ),
         // Cancel Button
         FilledButton(
             onPressed: () {

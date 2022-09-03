@@ -9,6 +9,7 @@ import 'package:reference_library/fragments/search_screen.dart';
 import 'package:reference_library/fragments/series_screen.dart';
 import 'package:reference_library/fragments/settings_screen.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
@@ -57,6 +58,7 @@ class ReferenceLibrary extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => DataProvider()),
           ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
+          ChangeNotifierProvider(create: (_) => EditingProvider()),
         ],
         // Fluent main app
         child: FluentApp(

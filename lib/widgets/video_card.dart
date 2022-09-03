@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/widgets/video_edit.dart';
@@ -57,11 +58,17 @@ class _VideoCardState extends State<VideoCard> {
               onSecondaryTap: () {
                 // Right click to show video edit screen
                 setState(() {
+                  context.read<EditingProvider>().setVideoData(data);
+                  context
+                      .read<EditingProvider>()
+                      .setTimestamps(data.timestamps);
+                  context.read<EditingProvider>().setTags(data.tags);
                   showDialog<VideoData>(
                       context: context,
                       builder: (context) => VideoEditDialog(
                             title: "Edit Video Information",
                             d: data,
+                            newVideo: false,
                           )).then((value) {
                     if (value != null) {
                       data = value;

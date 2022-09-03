@@ -198,7 +198,7 @@ class DataProvider with ChangeNotifier {
         _allVideos.remove(oldVid.videoId);
         _allVideos[newVid.videoId] = newVid;
         notifyListeners();
-        _localData.delete(oldVid.videoId);
+        _localData.deleteMeta(oldVid.videoId);
         _localData.update(newVid.videoId, newVid.toMap());
       }
     }
@@ -207,8 +207,11 @@ class DataProvider with ChangeNotifier {
   // Delete a video
   void deleteVideo(String videoId) {
     if (_allVideos.containsKey(videoId)) {
+      // Then the meta file
+      _localData.deleteMeta(videoId);
+      // Then remove it from the list of videos
       _allVideos.remove(videoId);
-      _localData.delete(videoId);
+      // Then update listeners for page refresh
       notifyListeners();
     }
   }
@@ -216,10 +219,12 @@ class DataProvider with ChangeNotifier {
   // Timestamp CRUD
   // Adds timestamp to a video if it's not already on the list
   void createTimestamp(String videoId, TimestampData t) {
-    if (!_allVideos[videoId]!.timestamps.contains(t)) {
-      _allVideos[videoId]?.timestamps.add(t);
-      _localData.update(videoId, _allVideos[videoId]!.toMap());
-      notifyListeners();
+    if (_allVideos.containsKey(videoId)) {
+      if (!_allVideos[videoId]!.timestamps.contains(t)) {
+        _allVideos[videoId]?.timestamps.add(t);
+        _localData.update(videoId, _allVideos[videoId]!.toMap());
+        notifyListeners();
+      }
     }
   }
 
@@ -384,11 +389,20 @@ class VideoData {
       for (Map<String, dynamic> d in map['timestamps']) {
         //d['videoId'] = '';
         ts.add(TimestampData.fromMap(
-            map['title'].toString().toLowerCase().replaceAll(' ', '_'), d));
+            map['title']
+                .toString()
+                .toLowerCase()
+                .replaceAll(' ', '_')
+                .replaceAll(RegExp("[^A-Za-z0-9_]"), ""),
+            d));
       }
     }
     return VideoData(
-        map['title'].toString().toLowerCase().replaceAll(' ', '_'),
+        map['title']
+            .toString()
+            .toLowerCase()
+            .replaceAll(' ', '_')
+            .replaceAll(RegExp("[^A-Za-z0-9_]"), ""),
         map['title'],
         map['localPath'],
         map['series'],

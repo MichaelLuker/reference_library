@@ -7,6 +7,7 @@ import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
 import 'package:reference_library/widgets/timestamp_edit.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Page showing the video, video controls, timestamps, playlist
 class PlaybackScreen extends StatelessWidget {
@@ -29,7 +30,18 @@ class PlaybackScreen extends StatelessWidget {
     }
     return ScaffoldPage(
       header: Row(children: [
-        Expanded(child: Center(child: Text(data.title))),
+        Expanded(
+            child: Center(
+                child: GestureDetector(
+                    onTap: () {
+                      launchUrl(Uri.parse(data.url));
+                    },
+                    child: Text(
+                      data.title,
+                      style: const TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Color.fromARGB(255, 84, 145, 250)),
+                    )))),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.2,
           child: Container(),
@@ -104,8 +116,8 @@ class PlaybackScreen extends StatelessWidget {
                                         minutesTEC.text = timePieces[1];
                                         secondsTEC.text = timePieces[2];
 
-                                        TagList tags =
-                                            TagList(selectedTags: const []);
+                                        TagList tags = TagList(
+                                            selectedTags: [], editing: false);
 
                                         showDialog<TimestampItem>(
                                             context: context,

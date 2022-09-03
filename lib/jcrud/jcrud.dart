@@ -65,7 +65,7 @@ class jcrud {
   }
 
   // Deletes a file
-  void delete(String fileName) async {
+  void deleteMeta(String fileName) async {
     File newFile = File("$_base/$fileName");
     newFile.exists().then((e) {
       if (e) {

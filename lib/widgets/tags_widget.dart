@@ -1,14 +1,17 @@
+import 'dart:developer';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 
+// ignore: must_be_immutable
 class TagList extends StatefulWidget {
-  TagList({
-    Key? key,
-    required this.selectedTags,
-  }) : super(key: key);
+  TagList({Key? key, required this.selectedTags, required this.editing})
+      : super(key: key);
 
   List<String> selectedTags;
+  bool editing;
 
   @override
   State<TagList> createState() => TagListState();
@@ -34,10 +37,10 @@ class TagListState extends State<TagList> {
   }
 
   // Builds the list of all tag chips
-  List<Widget> buildChips(List<String> tags) {
+  List<Widget> buildChips(List<String> tags, BuildContext context) {
     // If there's no values saved yet set them all to unselected
     bool init = false;
-    if (_chipSelect.isEmpty) {
+    if (_chipSelect.isEmpty && !widget.editing) {
       setState(() {
         init = true;
       });
@@ -56,26 +59,30 @@ class TagListState extends State<TagList> {
         } else {
           selected = false;
         }
-        setState(() {
-          _chipSelect[t] = selected;
-        });
       } else {
-        selected = savedVal!;
+        if (widget.selectedTags.contains(t)) {
+          selected = true;
+        } else {
+          selected = savedVal!;
+        }
       }
+      setState(() {
+        _chipSelect[t] = selected;
+      });
       r.add(Padding(
         padding: const EdgeInsets.all(4.0),
         child: TagChip(t, selected, chipSelectCallback),
       ));
     }
-    //dev.log("Chip States: ${_chipSelect.toString()}");
     return r;
   }
 
   @override
   Widget build(BuildContext context) {
     _tags = context.watch<DataProvider>().tags;
+
     return Wrap(
-      children: buildChips(_tags),
+      children: buildChips(_tags, context),
     );
   }
 }

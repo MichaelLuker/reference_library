@@ -22,7 +22,8 @@ class _SearchScreenState extends State<SearchScreen> {
   late Map<String, VideoData> _videos;
 
   late final TagList _tagListWidget = TagList(
-    selectedTags: const [],
+    selectedTags: [],
+    editing: false,
   );
 
   List<Widget> buildResults(Map<String, VideoData> videos) {

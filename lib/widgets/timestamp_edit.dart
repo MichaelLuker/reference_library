@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
 
@@ -26,7 +27,10 @@ class TimestampEditDialog extends StatelessWidget {
     // changes before the save button was being hit, and cancel didn't reset
     // [...d.tags] will create a full copy of the list to work with statelessly
     // and should only ever update when the save button is used...
-    TagList tags = TagList(selectedTags: [...d.tags]);
+    TagList tags = TagList(
+      selectedTags: [...d.tags],
+      editing: true,
+    );
     //TagList tags = TagList(selectedTags: d.tags);
     return ContentDialog(
       constraints:
@@ -116,6 +120,10 @@ class TimestampEditDialog extends StatelessWidget {
                 context
                     .read<PlaylistProvider>()
                     .updateCurrentVideoData(context);
+                context.read<EditingProvider>().updateTimestamp(
+                    d,
+                    TimestampData(tags.selectedTags, d.videoId, topicTEC.text,
+                        "${hoursTEC.text.padLeft(2, "0")}:${minutesTEC.text.padLeft(2, "0")}:${secondsTEC.text.padLeft(2, "0")}"));
                 Navigator.pop(context);
               } else {
                 showSnackbar(
@@ -149,6 +157,7 @@ class TimestampEditDialog extends StatelessWidget {
                             context
                                 .read<PlaylistProvider>()
                                 .updateCurrentVideoData(context);
+                            context.read<EditingProvider>().removeTimestamp(d);
                             Navigator.pop(context);
                             Navigator.pop(context);
                           },
