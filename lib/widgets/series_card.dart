@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/widgets/series_edit.dart';
 import '../providers/data_provider.dart';
 
 // Widget to display a video thumbnail and title (library, playlist, search screens)
@@ -37,7 +39,7 @@ class _SeriesCardState extends State<SeriesCard> {
       // Make sure it's sorted based on index
       seriesVideos.sort(((a, b) => a.seriesIndex.compareTo(b.seriesIndex)));
       // Grab the thumbnail of the first video to use
-      if (!thumbnailExists) {
+      if (!thumbnailExists && seriesVideos.isNotEmpty) {
         setState(() {
           thumbnailExists = File(seriesVideos.first.thumbnailPath).existsSync();
           thumbnailPath = seriesVideos.first.thumbnailPath;
@@ -74,6 +76,35 @@ class _SeriesCardState extends State<SeriesCard> {
           child: GestureDetector(
               onSecondaryTap: () {
                 // Right click to show series edit screen
+                setState(() {
+                  context.read<EditingProvider>().resetSeriesData();
+                  context.read<EditingProvider>().setSeriesData({
+                    "title": seriesTitle,
+                    "videos": [...seriesVideos]
+                  });
+                  showDialog<bool>(
+                      context: context,
+                      builder: (context) => SeriesEditDialog(
+                            origName: seriesTitle,
+                            origVideos: seriesVideos,
+                            title: "Edit Series Information",
+                            newSeries: false,
+                          )).then((value) {
+                    if (value != null && value) {
+                      context.read<NavigationProvider>().goToLibrary();
+                      context.read<NavigationProvider>().refreshPage();
+                      context.read<NavigationProvider>().goToSeries();
+                      context.read<NavigationProvider>().refreshPage();
+                    }
+                  });
+
+                  //         .then((value) {
+                  //   if (value != null) {
+                  //     data = value;
+                  //     context.read<NavigationProvider>().refreshPage();
+                  //   }
+                  // });
+                });
               },
               onTap: () {
                 // Left click the card to queue series and play immediately

@@ -21,12 +21,14 @@ import 'dart:math';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/widgets/playlist_widget.dart';
 import 'package:reference_library/widgets/series_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/widgets/series_edit.dart';
 
 // All the different settings, series, tags, add new videos, edit data on existing ones?
 class SeriesScreen extends StatelessWidget {
@@ -59,20 +61,50 @@ class SeriesScreen extends StatelessWidget {
     });
 
     return ScaffoldPage(
-      content: Row(
+      content: Stack(
         children: [
-          (context.watch<PlaylistProvider>().playList.isNotEmpty &&
-                  context.watch<NavigationProvider>().index == 1)
-              ? SizedBox(width: 250, child: PlayListWidget())
-              : Container(),
-          SizedBox(
-            width: (context.watch<PlaylistProvider>().playList.isNotEmpty)
-                ? MediaQuery.of(context).size.width - 300
-                : MediaQuery.of(context).size.width - 50,
-            child: GridView.count(
-                controller: _sc,
-                crossAxisCount: 5,
-                children: buildResults(context.watch<DataProvider>().series)),
+          Row(
+            children: [
+              (context.watch<PlaylistProvider>().playList.isNotEmpty &&
+                      context.watch<NavigationProvider>().index == 1)
+                  ? SizedBox(width: 250, child: PlayListWidget())
+                  : Container(),
+              SizedBox(
+                width: (context.watch<PlaylistProvider>().playList.isNotEmpty)
+                    ? MediaQuery.of(context).size.width - 300
+                    : MediaQuery.of(context).size.width - 50,
+                child: GridView.count(
+                    controller: _sc,
+                    crossAxisCount: 5,
+                    children:
+                        buildResults(context.watch<DataProvider>().series)),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                onPressed: () {
+                  // New Series Prompt
+                  context.read<EditingProvider>().resetSeriesData();
+                  showDialog(
+                      context: context,
+                      builder: (context) => SeriesEditDialog(
+                            title: "New Series Information",
+                            origName: "",
+                            origVideos: const <VideoData>[],
+                            newSeries: true,
+                          ));
+                  ;
+                },
+                icon: const Icon(
+                  FluentIcons.circle_addition,
+                  size: 24,
+                ),
+              ),
+            ),
           ),
         ],
       ),

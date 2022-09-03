@@ -48,6 +48,7 @@ class DataProvider with ChangeNotifier {
     }
 
     // Get the list of created tags
+    _availableTags.clear();
     Map<String, dynamic> temp = _localData.read("Tags");
     if (temp.isNotEmpty) {
       for (String t in temp["Tags"]) {
@@ -55,6 +56,7 @@ class DataProvider with ChangeNotifier {
       }
     }
     // And the list of series names
+    _availableSeries.clear();
     temp = _localData.read("Series");
     if (temp.isNotEmpty) {
       for (String t in temp["Series"]) {
@@ -62,6 +64,7 @@ class DataProvider with ChangeNotifier {
       }
     }
     // Then all the individual video data
+    _allVideos.clear();
     temp = _localData.readAll();
     if (temp.isNotEmpty) {
       for (String key in temp.keys) {
@@ -128,8 +131,9 @@ class DataProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // I don't know if this one is actually needed since it all gets read at startup?
-  //void readSeries() {}
+  void reloadData() {
+    initValues(fullInit: true);
+  }
 
   // Updates a series, I guess it's only renaming?
   void updateSeries(String oldName, String newName) {
@@ -197,9 +201,8 @@ class DataProvider with ChangeNotifier {
       if (_allVideos.containsKey(oldVid.videoId)) {
         _allVideos.remove(oldVid.videoId);
         _allVideos[newVid.videoId] = newVid;
-        notifyListeners();
-        _localData.deleteMeta(oldVid.videoId);
         _localData.update(newVid.videoId, newVid.toMap());
+        notifyListeners();
       }
     }
   }

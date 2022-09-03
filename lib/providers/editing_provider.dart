@@ -7,6 +7,37 @@ class EditingProvider with ChangeNotifier {
   VideoData? _videoData;
   List<TimestampData>? _timestamps;
   List<String>? _tags;
+  Map<String, dynamic>? _seriesData;
+
+  void resetSeriesData() {
+    _seriesData = {};
+    _seriesData!["title"] = "";
+    _seriesData!["videos"] = <VideoData>[];
+  }
+
+  void setSeriesData(Map<String, dynamic> sd) {
+    _seriesData = sd;
+    notifyListeners();
+  }
+
+  void removeSeriesVideo(VideoData d) {
+    List<VideoData> v = _seriesData!["videos"];
+    v.remove(d);
+    notifyListeners();
+  }
+
+  void addSeriesVideo(VideoData d) {
+    List<VideoData> v = _seriesData!["videos"];
+    v.add(d);
+    notifyListeners();
+  }
+
+  void moveSeriesVideo(int oldPos, int newPos) {
+    List<VideoData> v = _seriesData!["videos"];
+    VideoData d = v.removeAt(oldPos);
+    v.insert(newPos, d);
+    notifyListeners();
+  }
 
   void setVideoData(VideoData d) {
     _videoData = d;
@@ -64,4 +95,5 @@ class EditingProvider with ChangeNotifier {
   VideoData? get videoData => _videoData;
   List<TimestampData>? get timestamps => _timestamps;
   List<String>? get tags => _tags;
+  Map<String, dynamic>? get seriesData => _seriesData;
 }

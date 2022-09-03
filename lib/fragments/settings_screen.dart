@@ -1,10 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:developer';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
+import 'package:reference_library/widgets/tags_widget.dart';
 
 // All the different settings, series, tags, add new videos, edit data on existing ones?
 class SettingsScreen extends StatelessWidget {
@@ -12,6 +16,7 @@ class SettingsScreen extends StatelessWidget {
 
   final TextEditingController smallTimeTC = TextEditingController();
   final TextEditingController bigTimeTC = TextEditingController();
+  late TagList selectedTags;
 
   void showHotkeyDialog(
       BuildContext context, String keyLabel, Function updateKey) {
@@ -55,6 +60,7 @@ class SettingsScreen extends StatelessWidget {
         context.watch<SettingsProvider>().bigSkipTime.inSeconds.toString();
     FocusNode smallSkipFocus = FocusNode();
     FocusNode bigSkipFocus = FocusNode();
+    selectedTags = TagList(selectedTags: [], editing: false);
     return ScaffoldPage(
       content: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -319,7 +325,73 @@ class SettingsScreen extends StatelessWidget {
                   const Text(" seconds")
                 ],
               ),
-            )
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            boxShadow: [
+                              BoxShadow(color: Colors.grey[200]),
+                              BoxShadow(
+                                  color: Colors.grey[160],
+                                  spreadRadius: -6,
+                                  blurRadius: 6)
+                            ]),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.25,
+                          width: MediaQuery.of(context).size.width * 0.45,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SingleChildScrollView(
+                              controller: ScrollController(),
+                              child: selectedTags,
+                            ),
+                          ),
+                        )),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: IconButton(
+                          onPressed: () {
+                            showDialog<String>(
+                                context: context,
+                                builder: (context) => ContentDialog(
+                                      title: const Text(
+                                          "Really delete selected tags?"),
+                                      actions: [
+                                        Button(
+                                            onPressed: () {
+                                              selectedTags.selectedTags
+                                                  .forEach((element) {
+                                                context
+                                                    .read<DataProvider>()
+                                                    .deleteTag(element);
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("Confirm")),
+                                        FilledButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("Cancel"))
+                                      ],
+                                    ));
+                          },
+                          icon: const Icon(FluentIcons.delete)),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),

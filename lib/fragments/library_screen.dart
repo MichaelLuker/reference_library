@@ -43,6 +43,9 @@ class LibraryScreen extends StatelessWidget {
       }
     });
 
+    List<VideoData> sortedVideos = [...videoList.values.toList()];
+    sortedVideos.sort((a, b) => a.title.compareTo(b.title));
+
     return ScaffoldPage(
       content: Stack(
         children: [
@@ -59,8 +62,7 @@ class LibraryScreen extends StatelessWidget {
                 child: GridView.count(
                     controller: _sc,
                     crossAxisCount: 5,
-                    children:
-                        videoList.values.map((e) => VideoCard(e)).toList()),
+                    children: sortedVideos.map((e) => VideoCard(e)).toList()),
               ),
             ],
           ),

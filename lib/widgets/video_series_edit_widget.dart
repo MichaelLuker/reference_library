@@ -76,7 +76,8 @@ class _VideoSeriesEditWidgetState extends State<VideoSeriesEditWidget> {
                         width: MediaQuery.of(context).size.width * 0.35,
                         child: Combobox<String>(
                           value: selectedSeries,
-                          onChanged: (s) => setState(() => selectedSeries = s!),
+                          onChanged: (s) => setState(() => widget
+                              .seriesData.seriesName = selectedSeries = s!),
                           isExpanded: true,
                           items: context
                               .read<DataProvider>()
