@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
-import 'package:reference_library/providers/editing_provider.dart';
+import 'package:reference_library/providers/navigation_provider.dart';
+import 'package:reference_library/providers/search_provider.dart';
 
 // ignore: must_be_immutable
 class TagList extends StatefulWidget {
@@ -23,16 +22,25 @@ class TagListState extends State<TagList> {
   final Map<String, bool> _chipSelect = {};
 
   // Function called when a chip is selected, it updates the visual state and filter list
-  void chipSelectCallback(String text, bool selected) {
+  void chipSelectCallback(String text, bool selected, BuildContext context) {
     setState(() {
       bool updatedVal = selected ? false : true;
       _chipSelect[text] = updatedVal;
       if (updatedVal) {
         widget.selectedTags.add(text);
+
+        // If search screen, use search provider
+        if (context.read<NavigationProvider>().isSearch) {
+          context.read<SearchProvider>().addTag(text, context);
+        }
       } else {
         widget.selectedTags.removeWhere((element) => element == text);
+
+        // If search screen, use search provider
+        if (context.read<NavigationProvider>().isSearch) {
+          context.read<SearchProvider>().removeTag(text, context);
+        }
       }
-      //dev.log("Selected Tags: ${widget.selectedTags.toString()}");
     });
   }
 
@@ -102,7 +110,7 @@ class TagChip extends StatelessWidget {
               text,
             ),
             onPressed: () {
-              callback(text, selected);
+              callback(text, selected, context);
             },
           )
         : Chip(
@@ -110,7 +118,7 @@ class TagChip extends StatelessWidget {
               text,
             ),
             onPressed: () {
-              callback(text, selected);
+              callback(text, selected, context);
             },
           );
   }

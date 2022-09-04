@@ -1,6 +1,6 @@
-import 'dart:developer';
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls, prefer_interpolation_to_compose_strings
 
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
@@ -200,7 +200,6 @@ class VideoEditDialog extends StatelessWidget {
                             minutesTEC.text = timePieces[1];
                             secondsTEC.text = timePieces[2];
 
-                            // ignore: prefer_const_literals_to_create_immutables
                             TagList tags = TagList(
                               selectedTags: [],
                               editing: false,
@@ -332,8 +331,6 @@ class VideoEditDialog extends StatelessWidget {
                                                             .replaceAll(
                                                                 ' ', '_'),
                                                         newTS);
-
-                                                ;
 
                                                 Navigator.pop(context);
                                               } else {

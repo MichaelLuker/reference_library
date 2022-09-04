@@ -1,25 +1,20 @@
-import 'dart:math';
+// ignore_for_file: must_be_immutable, prefer_const_literals_to_create_immutables
+
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:reference_library/providers/search_provider.dart';
 import 'package:reference_library/widgets/tags_widget.dart';
 import 'package:reference_library/widgets/video_card.dart';
 import 'package:reference_library/providers/data_provider.dart';
 
-// Search page, showing all available tags to search on, shows timestamps first then full videos
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+class SearchScreen extends StatelessWidget {
+  SearchScreen({Key? key}) : super(key: key);
 
-  @override
-  State<SearchScreen> createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends State<SearchScreen> {
   // Need a secondary scroll controller for the left pane tag view
   final ScrollController _tagScroller = ScrollController();
   final ScrollController _sc = ScrollController();
-  final int _extraScrollSpeed = 50;
-  late Map<String, VideoData> _videos;
+  late List<Widget> _results;
+  late List<String> _suggestions;
 
   late final TagList _tagListWidget = TagList(
     selectedTags: [],
@@ -34,27 +29,28 @@ class _SearchScreenState extends State<SearchScreen> {
     return r;
   }
 
-  @override
-  void initState() {
-    _sc.addListener(() {
-      ScrollDirection scrollDirection = _sc.position.userScrollDirection;
-      if (scrollDirection != ScrollDirection.idle) {
-        double scrollEnd = _sc.offset +
-            (scrollDirection == ScrollDirection.reverse
-                ? _extraScrollSpeed
-                : -_extraScrollSpeed);
-        scrollEnd = min(_sc.position.maxScrollExtent,
-            max(_sc.position.minScrollExtent, scrollEnd));
-        _sc.jumpTo(scrollEnd);
-      }
-    });
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   _sc.addListener(() {
+  //     ScrollDirection scrollDirection = _sc.position.userScrollDirection;
+  //     if (scrollDirection != ScrollDirection.idle) {
+  //       double scrollEnd = _sc.offset +
+  //           (scrollDirection == ScrollDirection.reverse
+  //               ? _extraScrollSpeed
+  //               : -_extraScrollSpeed);
+  //       scrollEnd = min(_sc.position.maxScrollExtent,
+  //           max(_sc.position.minScrollExtent, scrollEnd));
+  //       _sc.jumpTo(scrollEnd);
+  //     }
+  //   });
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
     // Watch the tag list
-    _videos = context.watch<DataProvider>().videos;
+    _results = [...context.watch<SearchProvider>().searchResults];
+    _suggestions = [...context.watch<SearchProvider>().suggestions];
     return ScaffoldPage(
       header: Row(
         children: [
@@ -64,13 +60,17 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: Center(child: Text("Tag Filters")),
               )),
-          const Expanded(
+          Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: AutoSuggestBox(
+                clearButtonEnabled: false,
                 placeholder: "Keyword Search",
-                items: [],
-                trailingIcon: Icon(FluentIcons.search_and_apps),
+                onChanged: (t, r) {
+                  context.read<SearchProvider>().updateKeywords(t, context);
+                },
+                items: _suggestions,
+                trailingIcon: const Icon(FluentIcons.search_and_apps),
               ),
             ),
           ),
@@ -95,7 +95,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: GridView.count(
               controller: _sc,
               crossAxisCount: 5,
-              children: buildResults(_videos),
+              children: _results,
             ),
           ),
         ],

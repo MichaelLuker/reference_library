@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:fluent_ui/fluent_ui.dart';

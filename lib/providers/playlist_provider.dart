@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -106,7 +105,6 @@ class PlaylistProvider with ChangeNotifier {
     if (_currentVideo != null) {
       String fullPath =
           "${context.read<SettingsProvider>().videoFolder.path}/${_currentVideo!.localPath}";
-      log("Loading Video: $fullPath");
       _player.open(Media.file(File(fullPath)), autoStart: autoStart);
     }
     _debounce = false;
@@ -188,10 +186,9 @@ class PlaylistProvider with ChangeNotifier {
       _loadVideo(context);
       // Modify the playlist quickly to reset the stateful widgets??
       VideoData end = _playList.removeLast();
-      notifyListeners();
       _playList.add(end);
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   // Functions for controlling random play back

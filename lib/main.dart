@@ -12,6 +12,7 @@ import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/providers/search_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:dart_vlc/dart_vlc.dart';
@@ -59,6 +60,7 @@ class ReferenceLibrary extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => PlaylistProvider()),
           ChangeNotifierProvider(create: (_) => NavigationProvider()),
           ChangeNotifierProvider(create: (_) => EditingProvider()),
+          ChangeNotifierProvider(create: (_) => SearchProvider()),
         ],
         // Fluent main app
         child: FluentApp(
@@ -187,9 +189,15 @@ class _AppState extends State<App> with WindowListener {
             ],
 
             // Update the index when a different item is selected
-            onChanged: (i) => setState(() => context
-                .read<NavigationProvider>()
-                .setIndex(i, context: context)),
+            // onChanged: (i) => setState(() => context
+            //     .read<NavigationProvider>()
+            //     .setIndex(i, context: context)),
+
+            onChanged: (i) {
+              setState(() => context
+                  .read<NavigationProvider>()
+                  .setIndex(i, context: context));
+            },
 
             // Put the settings at the bottom of the nav with a separator
             footerItems: [
@@ -220,7 +228,7 @@ class _AppState extends State<App> with WindowListener {
                     LibraryScreen(
                         videoList: context.watch<DataProvider>().videos),
                     SeriesScreen(),
-                    const SearchScreen(),
+                    SearchScreen(),
                     const PlaybackScreen(),
                     SettingsScreen()
                   ]),

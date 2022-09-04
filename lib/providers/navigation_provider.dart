@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/playlist_provider.dart';
+import 'package:reference_library/providers/search_provider.dart';
 import 'package:reference_library/providers/settings_provider.dart';
 
 // Provides some extra navigation hooks to the app for page transitions
@@ -20,8 +21,9 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToSearch() {
+  void goToSearch(BuildContext context) {
     _index = 2;
+
     notifyListeners();
   }
 
@@ -59,6 +61,13 @@ class NavigationProvider extends ChangeNotifier {
       }
     }
     _index = i;
+
+    if (_index == 2) {
+      // If we're going to the search page make sure it shows results?
+      String temp = context.read<SearchProvider>().currentKeywords;
+      context.read<SearchProvider>().updateKeywords(temp, context);
+    }
+
     if (_index == 3) {
       // If we're going TO the playback screen we don't want the mini player
       _showMiniPlayer = false;
@@ -90,4 +99,5 @@ class NavigationProvider extends ChangeNotifier {
   int get index => _index;
   bool get showMiniPlayer => _showMiniPlayer;
   FocusNode get mainAppFocus => _mainAppFocus;
+  bool get isSearch => _index == 2;
 }

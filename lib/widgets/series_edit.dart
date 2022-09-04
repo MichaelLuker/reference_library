@@ -1,11 +1,10 @@
-import 'dart:developer';
+// ignore_for_file: must_be_immutable
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
 import 'package:reference_library/providers/editing_provider.dart';
 import 'package:reference_library/providers/navigation_provider.dart';
-import 'package:reference_library/widgets/playlist_widget.dart';
 
 class SeriesEditDialog extends StatelessWidget {
   SeriesEditDialog(
@@ -202,7 +201,6 @@ class SeriesEditDialog extends StatelessWidget {
                                             ],
                                           )).then((value) {
                                     if (value != null) {
-                                      log("Going to add ${value.title} to the series");
                                       context
                                           .read<EditingProvider>()
                                           .addSeriesVideo(value);

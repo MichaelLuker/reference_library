@@ -31,7 +31,6 @@ class DataProvider with ChangeNotifier {
     if (fullInit) {
       // Use temp directory to save app settings
       Directory value = await getTemporaryDirectory();
-      log("Settings file: ${value.path}/$_settingsFileName");
       jcrud localSettings = jcrud(value.path);
       Map<String, dynamic> savedSettings =
           localSettings.read(_settingsFileName);

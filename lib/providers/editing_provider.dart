@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:reference_library/providers/data_provider.dart';
 
@@ -85,7 +83,6 @@ class EditingProvider with ChangeNotifier {
     if (_tags != null) {
       if (!_tags!.contains(t)) {
         _tags!.add(t);
-        log("Adding selected tag $t");
         notifyListeners();
       }
     }

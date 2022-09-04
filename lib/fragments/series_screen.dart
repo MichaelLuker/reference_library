@@ -97,7 +97,6 @@ class SeriesScreen extends StatelessWidget {
                             origVideos: const <VideoData>[],
                             newSeries: true,
                           ));
-                  ;
                 },
                 icon: const Icon(
                   FluentIcons.circle_addition,
