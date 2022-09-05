@@ -106,9 +106,6 @@ class LibraryScreen extends StatelessWidget {
                               value.writeAsBytes(tmbBytes);
                               newData.thumbnailPath = thumbnail.path;
 
-                              // Then write the actual video data file and add it to the list
-                              context.read<DataProvider>().createVideo(newData);
-
                               // Then refresh the view after some time for thumbnail download?
                               // Future.delayed(const Duration(milliseconds: 150))
                               //     .then((value) => context
@@ -118,6 +115,8 @@ class LibraryScreen extends StatelessWidget {
                           });
                         }
                       }
+                      // Then write the actual video data file and add it to the list
+                      context.read<DataProvider>().createVideo(newData);
                     }
                   });
                 },

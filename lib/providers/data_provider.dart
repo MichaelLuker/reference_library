@@ -31,6 +31,7 @@ class DataProvider with ChangeNotifier {
     if (fullInit) {
       // Use temp directory to save app settings
       Directory value = await getTemporaryDirectory();
+      log(value.path);
       jcrud localSettings = jcrud(value.path);
       Map<String, dynamic> savedSettings =
           localSettings.read(_settingsFileName);
@@ -195,7 +196,6 @@ class DataProvider with ChangeNotifier {
 
   // Updates an old video data entry to a new one
   void updateVideo(VideoData oldVid, VideoData newVid) {
-    log(newVid.toString());
     if (oldVid != newVid) {
       if (_allVideos.containsKey(oldVid.videoId)) {
         _allVideos.remove(oldVid.videoId);
