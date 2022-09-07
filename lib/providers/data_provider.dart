@@ -196,13 +196,16 @@ class DataProvider with ChangeNotifier {
 
   // Updates an old video data entry to a new one
   void updateVideo(VideoData oldVid, VideoData newVid) {
+    // Make sure they aren't the same data
     if (oldVid != newVid) {
+      // Remove the old video
       if (_allVideos.containsKey(oldVid.videoId)) {
         _allVideos.remove(oldVid.videoId);
-        _allVideos[newVid.videoId] = newVid;
-        _localData.update(newVid.videoId, newVid.toMap());
-        notifyListeners();
       }
+      // Add the new video data
+      _allVideos[newVid.videoId] = newVid;
+      _localData.update(newVid.videoId, newVid.toMap());
+      notifyListeners();
     }
   }
 

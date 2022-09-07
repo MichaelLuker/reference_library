@@ -58,6 +58,10 @@ class SeriesEditDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     titleTEC.text = context.watch<EditingProvider>().seriesData!["title"];
     seriesVideos = context.watch<EditingProvider>().seriesData!["videos"];
+
+    List<VideoData> sortedVideos =
+        context.read<DataProvider>().videos.values.toList();
+    sortedVideos.sort(((a, b) => a.title.compareTo(b.title)));
     return ContentDialog(
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width) * 0.45,
@@ -164,8 +168,8 @@ class SeriesEditDialog extends StatelessWidget {
                                                             0.35,
                                                     child: Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
+                                                            const EdgeInsets.all(
+                                                                8.0),
                                                         child:
                                                             SingleChildScrollView(
                                                                 controller:
@@ -175,11 +179,8 @@ class SeriesEditDialog extends StatelessWidget {
                                                                       ListView(
                                                                         shrinkWrap:
                                                                             true,
-                                                                        children: context
-                                                                            .read<DataProvider>()
-                                                                            .videos
-                                                                            .values
-                                                                            .map((e) {
+                                                                        children:
+                                                                            sortedVideos.map((e) {
                                                                           if (!e.series &&
                                                                               !seriesVideos.contains(e)) {
                                                                             return AddSeriesVideoTile(

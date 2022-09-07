@@ -1,5 +1,6 @@
 // JCRUD => JSON CRUD => Javascript Object Notation Create Read Update Delete
 
+import 'dart:developer';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:convert';
@@ -29,6 +30,7 @@ class jcrud {
   // Reads the file
   Map<String, dynamic> read(String fileName) {
     File newFile = File("$_base/$fileName");
+    //log(newFile.path);
     if (newFile.existsSync()) {
       String content = newFile.readAsStringSync();
       return jsonDecode(content);

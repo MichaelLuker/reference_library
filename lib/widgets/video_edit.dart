@@ -317,7 +317,11 @@ class VideoEditDialog extends StatelessWidget {
                                                     tags.selectedTags,
                                                     titleTEC.text
                                                         .toLowerCase()
-                                                        .replaceAll(' ', '_'),
+                                                        .replaceAll(' ', '_')
+                                                        .replaceAll(
+                                                            RegExp(
+                                                                "[^A-Za-z0-9_]"),
+                                                            ""),
                                                     topicTEC.text,
                                                     "${hoursTEC.text.padLeft(2, "0")}:${minutesTEC.text.padLeft(2, "0")}:${secondsTEC.text.padLeft(2, "0")}");
                                                 context
@@ -329,7 +333,11 @@ class VideoEditDialog extends StatelessWidget {
                                                         titleTEC.text
                                                             .toLowerCase()
                                                             .replaceAll(
-                                                                ' ', '_'),
+                                                                ' ', '_')
+                                                            .replaceAll(
+                                                                RegExp(
+                                                                    "[^A-Za-z0-9_]"),
+                                                                ""),
                                                         newTS);
 
                                                 Navigator.pop(context);
@@ -481,7 +489,6 @@ class VideoEditDialog extends StatelessWidget {
                     element.videoId = titleTEC.text
                         .toLowerCase()
                         .replaceAll(' ', '_')
-                        .replaceAll(RegExp("[^A-Za-z0-9_]"), "")
                         .replaceAll(RegExp("[^A-Za-z0-9_]"), ""));
               }
 

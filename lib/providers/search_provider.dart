@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_final_fields
 
+import 'dart:developer';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:reference_library/providers/data_provider.dart';
@@ -47,7 +49,13 @@ class SearchProvider with ChangeNotifier {
     "on",
     "more",
     "some",
-    "are"
+    "are",
+    "-",
+    "of",
+    "part",
+    "with",
+    "for",
+    "course"
   ];
 
   SearchProvider() {
